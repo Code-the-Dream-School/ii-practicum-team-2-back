@@ -23,7 +23,12 @@ const options: swaggerJsdoc.Options = {
       },
     ],
   },
-  apis: ["./src/routes/**/*.ts", "./src/schema/*.ts", "./src/dto/*.ts"],
+  apis: [
+    "./src/routes/**/*.ts",
+    "./src/schema/*.ts",
+    "./src/schema/*.json",
+    "./src/dto/*.ts",
+  ],
 };
 
 export default options;
