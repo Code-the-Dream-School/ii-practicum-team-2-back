@@ -9,6 +9,6 @@ suggestionRouter.get("/", queryParamsParser, suggestionController.getAll);
 suggestionRouter.get("/:id", suggestionController.getById);
 suggestionRouter.post("/", suggestionController.create);
 suggestionRouter.patch("/:id", suggestionController.update);
-suggestionRouter.delete("/:id", suggestionController.remove);
+suggestionRouter.delete("/:id", suggestionController.delete);
 
 export default suggestionRouter;

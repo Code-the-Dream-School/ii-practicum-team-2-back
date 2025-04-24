@@ -177,6 +177,9 @@ CREATE UNIQUE INDEX "daily_quest_user_id_title_key" ON "daily_quest" ("user_id",
 CREATE UNIQUE INDEX "daily_quest_completion_daily_quest_id_user_id_date_key" ON "daily_quest_completion" ("daily_quest_id", "user_id", "date");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "daily_quest_suggestion_title_icon_key" ON "daily_quest_suggestion" ("title", "icon");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "goal_type_name_key" ON "goal_type" ("name");
 
 -- CreateIndex

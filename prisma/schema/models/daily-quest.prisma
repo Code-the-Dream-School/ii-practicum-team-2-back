@@ -41,5 +41,6 @@ model DailyQuestSuggestion {
 
   daily_quests DailyQuest[]
 
+  @@unique([title, icon])
   @@map("daily_quest_suggestion")
 }

@@ -251,4 +251,22 @@ export default class DailyQuestService {
       throw e;
     }
   };
+
+  getDailyQuestIdsAddedWithSuggestion = async (userId: string) => {
+    return (await this.getDailyQuestsAddedWithSuggestion(userId)).map(
+      (row) => row.suggestion_id!
+    );
+  };
+
+  private getDailyQuestsAddedWithSuggestion = async (
+    userId: string
+  ): Promise<{ suggestion_id: string | null }[]> => {
+    return prisma.dailyQuest.findMany({
+      where: {
+        user_id: userId,
+        suggestion_id: { not: null },
+      },
+      select: { suggestion_id: true },
+    });
+  };
 }
