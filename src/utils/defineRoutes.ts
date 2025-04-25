@@ -1,6 +1,5 @@
 import { Express } from "express";
 
-import mainRouter from "@/test-resource/test.routes";
 import userRouter from "@/user/user.routes";
 import authRouter from "@/auth/auth.routes";
 import goalRouter from "@/goal/goal.routes";
@@ -11,7 +10,6 @@ import dailyQuestRouter from "@/daily-quest/daily-quest.routes";
 import dailyQuestSuggestionRouter from "@/daily-quest/suggestion/suggestion.routes";
 
 export const defineRoutes = (app: Express) => {
-  app.use("/api/v1", mainRouter); // TODO: remove when other controllers will be implemented and no examples needed anymore
   app.use("/api/v1/users", authRouter);
   app.use("/api/v1/users", userRouter);
   app.use("/api/v1/goals", goalRouter);

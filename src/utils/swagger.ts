@@ -1,26 +1,17 @@
 import type { Express, Request, Response } from "express-serve-static-core";
-import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import config from "@/config";
-import swagger_poc_json from "../../swagger.json";
+import swaggerSpec from "#root/swagger.json";
 
-const swaggerSpec = swaggerJsdoc(config.swagger);
-const swaggerPocSpec = JSON.parse(JSON.stringify(swagger_poc_json));
+const swaggerSpecJson = JSON.parse(JSON.stringify(swaggerSpec));
 
 const swaggerDocs = (app: Express): void => {
   // Swagger UI page
-  app.use("/docs-old", swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // TODO: replace this when spec is defined
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerPocSpec));
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecJson));
 
   // API endpoint for Swagger docs in JSON format
-  app.get("/docs.json", (req: Request, res: Response) => {
+  app.get("/docs.json", (_req: Request, res: Response) => {
     res.setHeader("Content-Type", "application/json");
-    res.send(swaggerPocSpec);
-  });
-  app.get("/docs-old.json", (req: Request, res: Response) => {
-    // TODO: replace this when spec is defined
-    res.setHeader("Content-Type", "application/json");
-    res.send(swaggerSpec);
+    res.send(swaggerSpecJson);
   });
 
   const { PORT = 8000 } = process.env;

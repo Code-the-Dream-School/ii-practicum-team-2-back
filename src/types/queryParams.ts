@@ -39,8 +39,3 @@ type QueryParams = {
 };
 
 export default QueryParams;
-
-// TODO: remove when other controllers will be implemented and no examples needed anymore
-export interface CreateUserQueryParams {
-  loginAfterCreate?: boolean;
-}
