@@ -44,5 +44,5 @@ dailyQuestRouter.post(
   routeParamsParser,
   dailyQuestController.toggleCompletion as RequestHandler
 );
-,
+
 export default dailyQuestRouter;

@@ -39,5 +39,5 @@ router.patch(
   routeParamsParser,
   goalController.updateFieldValues as RequestHandler
 );
-,
+
 export default router;

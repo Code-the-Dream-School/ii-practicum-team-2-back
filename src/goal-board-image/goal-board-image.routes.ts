@@ -23,6 +23,6 @@ goalBoardImageRouter.delete(
   auth,
   routeParamsParser,
   goalBoardImageController.remove as RequestHandler
-),;
+);
 
 export default goalBoardImageRouter;

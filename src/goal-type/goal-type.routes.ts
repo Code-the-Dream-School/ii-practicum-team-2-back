@@ -39,5 +39,5 @@ goalTypeRouter.post(
   routeParamsParser,
   goalTypeController.addFields as RequestHandler
 );
-,
+
 export default goalTypeRouter;

@@ -711,6 +711,11 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UpdateGoalFieldValuesRequest"
+              },
+              "examples": {
+                "UpdateGoalFieldValuesRequestForm": {
+                  "$ref": "#/components/examples/UpdateGoalFieldValuesRequestForm"
+                }
               }
             }
           }
@@ -891,6 +896,11 @@
                       }
                     }
                   }
+                },
+                "examples": {
+                  "GoalTypesResponse": {
+                    "$ref": "#/components/examples/GoalTypesResponse"
+                  }
                 }
               }
             }
@@ -920,7 +930,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/GoalTypeForm"
+                "$ref": "#/components/schemas/UpdateGoalTypeForm"
+              },
+              "examples": {
+                "GoalTypeRequestForm": {
+                  "$ref": "#/components/examples/CreateGoalTypeRequestForm"
+                }
               }
             }
           }
@@ -932,6 +947,11 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GoalTypeDetailedResponse"
+                },
+                "examples": {
+                  "GoalTypeResponse": {
+                    "$ref": "#/components/examples/GoalTypeResponse"
+                  }
                 }
               }
             }
@@ -973,6 +993,11 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GoalTypeDetailedResponse"
+                },
+                "examples": {
+                  "GoalTypeResponse": {
+                    "$ref": "#/components/examples/GoalTypeResponse"
+                  }
                 }
               }
             }
@@ -1002,7 +1027,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/GoalTypeForm"
+                "$ref": "#/components/schemas/UpdateGoalTypeForm"
+              },
+              "examples": {
+                "GoalTypeRequestForm": {
+                  "$ref": "#/components/examples/UpdateGoalTypeRequestForm"
+                }
               }
             }
           }
@@ -1014,6 +1044,11 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GoalTypeDetailedResponse"
+                },
+                "examples": {
+                  "GoalTypeResponse": {
+                    "$ref": "#/components/examples/GoalTypeResponse"
+                  }
                 }
               }
             }
@@ -1081,6 +1116,11 @@
                 "items": {
                   "$ref": "#/components/schemas/GoalTypeFieldForm"
                 }
+              },
+              "examples": {
+                "AddGoalTypeFieldsRequestForm": {
+                  "$ref": "#/components/examples/AddGoalTypeFieldsRequestForm"
+                }
               }
             }
           }
@@ -1118,6 +1158,11 @@
       }
     },
     "/goals/{id}/progress": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
       "get": {
         "tags": ["GoalProgress"],
         "summary": "Get goal progress",
@@ -1143,6 +1188,11 @@
                         "$ref": "#/components/schemas/GoalProgressResponse"
                       }
                     }
+                  }
+                },
+                "examples": {
+                  "GoalProgressListResponse": {
+                    "$ref": "#/components/examples/GoalProgressListResponse"
                   }
                 }
               }
@@ -1185,6 +1235,11 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GoalProgressResponse"
+                },
+                "examples": {
+                  "GoalProgressResponse": {
+                    "$ref": "#/components/examples/GoalProgressResponse"
+                  }
                 }
               }
             }
@@ -1271,14 +1326,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DailyQuestForm"
+                "$ref": "#/components/schemas/CreateDailyQuestForm"
               },
               "examples": {
-                "DailyQuestForm": {
-                  "$ref": "#/components/examples/DailyQuestForm"
+                "CreateDailyQuestForm": {
+                  "$ref": "#/components/examples/CreateDailyQuestForm"
                 },
-                "DailyQuestFormWithSelectedDays": {
-                  "$ref": "#/components/examples/DailyQuestFormWithSelectedDays"
+                "CreateDailyQuestFormWithSelectedDays": {
+                  "$ref": "#/components/examples/CreateDailyQuestFormWithSelectedDays"
                 }
               }
             }
@@ -1334,7 +1389,7 @@
             "name": "date",
             "in": "query",
             "required": true,
-            "description": "The exact date to fetch quests for. Format: YYYY-MM-DD. Example: 2025-04-23",
+            "description": "The exact date if the user device to fetch quests for. Format: YYYY-MM-DD. Example: 2025-04-23",
             "schema": {
               "type": "string",
               "format": "date",
@@ -1366,7 +1421,7 @@
                 },
                 "examples": {
                   "DailyQuestListResponse": {
-                    "$ref": "#/components/examples/DailyQuestListResponse"
+                    "$ref": "#/components/examples/DailyQuestWithCompletedListResponse"
                   }
                 }
               }
@@ -1443,14 +1498,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DailyQuestForm"
+                "$ref": "#/components/schemas/UpdateDailyQuestForm"
               },
               "examples": {
-                "DailyQuestForm": {
-                  "$ref": "#/components/examples/DailyQuestForm"
+                "UpdateDailyQuestForm": {
+                  "$ref": "#/components/examples/UpdateDailyQuestForm"
                 },
-                "DailyQuestFormWithSelectedDays": {
-                  "$ref": "#/components/examples/DailyQuestFormWithSelectedDays"
+                "UpdateDailyQuestFormWithSelectedDays": {
+                  "$ref": "#/components/examples/UpdateDailyQuestFormWithSelectedDays"
                 }
               }
             }
@@ -1628,7 +1683,7 @@
       },
       "post": {
         "tags": ["DailyQuestsSuggestions"],
-        "summary": "Create new daily quests suggestion",
+        "summary": "Create new daily quests suggestion (admin)",
         "requestBody": {
           "required": true,
           "content": {
@@ -1734,7 +1789,7 @@
       },
       "patch": {
         "tags": ["DailyQuestsSuggestions"],
-        "summary": "Update daily quests suggestion",
+        "summary": "Update daily quests suggestion (admin)",
         "requestBody": {
           "required": true,
           "content": {
@@ -1794,7 +1849,7 @@
       },
       "delete": {
         "tags": ["DailyQuestsSuggestions"],
-        "summary": "Delete daily quests suggestion",
+        "summary": "Delete daily quests suggestion (admin)",
         "responses": {
           "204": {
             "description": "Deleted"
@@ -2163,7 +2218,7 @@
           }
         }
       },
-      "GoalTypeForm": {
+      "CreateGoalTypeForm": {
         "type": "object",
         "properties": {
           "name": {
@@ -2177,6 +2232,17 @@
             "items": {
               "$ref": "#/components/schemas/GoalTypeFieldForm"
             }
+          }
+        }
+      },
+      "UpdateGoalTypeForm": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
           }
         }
       },
@@ -2272,6 +2338,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "progress_value": {
             "type": "integer"
           },
@@ -2281,7 +2351,7 @@
           }
         }
       },
-      "DailyQuestForm": {
+      "CreateDailyQuestForm": {
         "type": "object",
         "required": ["title", "icon", "frequency"],
         "properties": {
@@ -2296,6 +2366,39 @@
             "nullable": true,
             "description": "Must be added to create a daily quest from suggestions"
           },
+          "title": {
+            "type": "string",
+            "minimum": 3,
+            "maximum": 256
+          },
+          "icon": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 64
+          },
+          "frequency": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Daily",
+                "Mondays",
+                "Tuesdays",
+                "Wednesdays",
+                "Thursdays",
+                "Fridays",
+                "Saturdays",
+                "Sundays"
+              ],
+              "description": "Frequency of the daily quest repetition. Frequency must be either 'Daily' or at least one weekday, but not both."
+            }
+          }
+        }
+      },
+      "UpdateDailyQuestForm": {
+        "type": "object",
+        "required": ["title", "icon", "frequency"],
+        "properties": {
           "title": {
             "type": "string",
             "minimum": 3,
@@ -2380,6 +2483,72 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "DailyQuestWithCompletedResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "goal_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "suggestion_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 256
+          },
+          "icon": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 256
+          },
+          "frequency": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Daily",
+                "Mondays",
+                "Tuesdays",
+                "Wednesdays",
+                "Thursdays",
+                "Fridays",
+                "Saturdays",
+                "Sundays"
+              ],
+              "description": "Frequency of the daily quest repetition"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         }
       },
@@ -2472,19 +2641,19 @@
         "summary": "An example of Register User response",
         "value": {
           "user": {
-            "id": "396eb1db-dc34-418c-b071-714b3732aaef",
+            "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
             "email": "example@gmail.com",
             "name": "John Dou",
             "created_at": "2019-08-24T14:15:22Z"
           },
-          "access_token": "396eb1db-dc34-418c-b071-714b3732aaef",
-          "refresh_token": "789eb1db-dc34-418c-b071-714b3732aaef"
+          "access_token": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "refresh_token": "87b11604-f554-47f8-9334-39a0d4849ab3"
         }
       },
       "UserResponse": {
         "summary": "An example of New User response",
         "value": {
-          "id": "396eb1db-dc34-418c-b071-714b3732aaef",
+          "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "email": "example@gmail.com",
           "name": "John Dou",
           "created_at": "2019-08-24T14:15:22Z"
@@ -2500,8 +2669,8 @@
       "LoginUserResponse": {
         "summary": "An example of New User response",
         "value": {
-          "access_token": "396eb1db-dc34-418c-b071-714b3732aaef",
-          "refresh_token": "789eb1db-dc34-418c-b071-714b3732aaef"
+          "access_token": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "refresh_token": "87b11604-f554-47f8-9334-39a0d4849ab3"
         }
       },
       "GoogleLoginRequest": {
@@ -2546,20 +2715,20 @@
       "GoalResponse": {
         "summary": "An example of Goal response",
         "value": {
-          "id": "396eb1db-dc34-418c-b071-714b3732aaef",
+          "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "name": "Read more books",
           "description": "Read more books during this year",
-          "user_id": "400eb1db-dc34-418c-b071-714b3732aaef",
-          "goal_type_id": "12heb1db-dc34-418c-b071-714b3732aaef",
+          "user_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "goal_type_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "created_at": "2019-08-24T14:15:22Z",
           "updated_at": "2019-08-24T14:15:22Z",
           "goal_field_values": [
             {
-              "goal_type_field_id": "600eb1db-dc34-418c-b071-714b3732aaef",
+              "goal_type_field_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
               "value": "10"
             },
             {
-              "goal_type_field_id": "700eb1db-dc34-418c-b071-714b3732aaef",
+              "goal_type_field_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
               "value": "Every day"
             }
           ]
@@ -2570,14 +2739,14 @@
         "value": {
           "name": "Read more books",
           "description": "Read more books during this year",
-          "goal_type_id": "12heb1db-dc34-418c-b071-714b3732aaef",
+          "goal_type_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "goal_field_values": [
             {
-              "goal_type_field_id": "600eb1db-dc34-418c-b071-714b3732aaef",
+              "goal_type_field_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
               "value": "10"
             },
             {
-              "goal_type_field_id": "700eb1db-dc34-418c-b071-714b3732aaef",
+              "goal_type_field_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
               "value": "Every day"
             }
           ]
@@ -2590,15 +2759,230 @@
           "description": "Read more books during this year"
         }
       },
+      "UpdateGoalFieldValuesRequestForm": {
+        "summary": "An example of Update Goal Field Values request",
+        "value": [
+          {
+            "goal_type_field_id": "318457ab-ffae-4b45-8c7a-118df6692e83",
+            "value": "36"
+          },
+          {
+            "goal_type_field_id": "23c9531b-753c-42f5-bbd5-e017dd95ce78",
+            "value": "false"
+          }
+        ]
+      },
+      "CreateGoalTypeRequestForm": {
+        "summary": "An example of Create Goal Type request",
+        "value": {
+          "name": "Journal",
+          "description": "Capture your thoughts and feelings to gain clarity and insight.",
+          "goal_type_fields": [
+            {
+              "id": "c7b0cc70-9755-47a4-8137-280f0d24380b",
+              "goal_type_id": "59dd0a92-3731-402b-b1a5-a3dc9c7c0d1b",
+              "field_name": "What did you reflect on today?",
+              "field_type": "string",
+              "required": false,
+              "options": null,
+              "trackable": false
+            },
+            {
+              "id": "147bb1f8-ffe4-4faa-9c82-effab5a65375",
+              "goal_type_id": "59dd0a92-3731-402b-b1a5-a3dc9c7c0d1b",
+              "field_name": "What are you grateful for?",
+              "field_type": "string",
+              "required": false,
+              "options": null,
+              "trackable": false
+            }
+          ]
+        }
+      },
+      "GoalTypesResponse": {
+        "summary": "An example of Goal Types response",
+        "value": {
+          "data": [
+            {
+              "id": "59dd0a92-3731-402b-b1a5-a3dc9c7c0d1b",
+              "name": "Journal",
+              "description": "Capture your thoughts and feelings to gain clarity and insight.TESTS"
+            },
+            {
+              "id": "6d0d9210-03f6-4edf-a022-0429d040fef2",
+              "name": "Study",
+              "description": "Study more effectively to invest time in learning and unlock new opportunities."
+            },
+            {
+              "id": "6da2a1f3-20f4-4656-bb5b-47fa1903ac22",
+              "name": "Read more books",
+              "description": "Trade mindless scrolling on social media for the enjoyment of immersing yourself in the pages of a great book."
+            },
+            {
+              "id": "8be37f41-4c48-4fe9-9dd4-03b2c1eea6fd",
+              "name": "Create Custom Goal",
+              "description": "Enter a custom resolution and set your own goals to achieve it!"
+            },
+            {
+              "id": "b5c14cf4-f836-43e0-84a4-5af9118bc1b9",
+              "name": "Sleep more",
+              "description": "Get more rest to wake up refreshed and ready to have a better day!"
+            },
+            {
+              "id": "d776e95c-26d3-4145-a5b7-14eea2dd71d3",
+              "name": "Lose Weight",
+              "description": "Focus on healthy eating and regular exercise to achieve your weight loss goals."
+            }
+          ]
+        }
+      },
+      "GoalTypeResponse": {
+        "summary": "An example of Goal Type response",
+        "value": {
+          "id": "59dd0a92-3731-402b-b1a5-a3dc9c7c0d1b",
+          "name": "Journal",
+          "description": "Capture your thoughts and feelings to gain clarity and insight.TESTS",
+          "goal_type_fields": [
+            {
+              "id": "c7b0cc70-9755-47a4-8137-280f0d24380b",
+              "goal_type_id": "59dd0a92-3731-402b-b1a5-a3dc9c7c0d1b",
+              "field_name": "What did you reflect on today?",
+              "field_type": "string",
+              "required": false,
+              "options": null,
+              "trackable": false
+            },
+            {
+              "id": "147bb1f8-ffe4-4faa-9c82-effab5a65375",
+              "goal_type_id": "59dd0a92-3731-402b-b1a5-a3dc9c7c0d1b",
+              "field_name": "What are you grateful for?",
+              "field_type": "string",
+              "required": false,
+              "options": null,
+              "trackable": false
+            },
+            {
+              "id": "318457ab-ffae-4b45-8c7a-118df6692e83",
+              "goal_type_id": "59dd0a92-3731-402b-b1a5-a3dc9c7c0d1b",
+              "field_name": "Mood rating (1-10)",
+              "field_type": "integer",
+              "required": false,
+              "options": null,
+              "trackable": true
+            },
+            {
+              "id": "23c9531b-753c-42f5-bbd5-e017dd95ce78",
+              "goal_type_id": "59dd0a92-3731-402b-b1a5-a3dc9c7c0d1b",
+              "field_name": "Did journaling help today?",
+              "field_type": "boolean",
+              "required": false,
+              "options": null,
+              "trackable": true
+            },
+            {
+              "id": "5f4825ae-189c-46e0-a740-e039a512bea7",
+              "goal_type_id": "59dd0a92-3731-402b-b1a5-a3dc9c7c0d1b",
+              "field_name": "Journal method",
+              "field_type": "dropdown",
+              "required": false,
+              "options": ["Typed", "Handwritten", "Voice Notes"],
+              "trackable": false
+            }
+          ]
+        }
+      },
+      "UpdateGoalTypeRequestForm": {
+        "summary": "An example of Update Goal Type request",
+        "value": {
+          "name": "Journal",
+          "description": "Capture your thoughts and feelings to gain clarity and insight."
+        }
+      },
+      "AddGoalTypeFieldsRequestForm": {
+        "summary": "An example of Add Goal Type Fields request",
+        "value": [
+          {
+            "field_name": "What did you reflect on today?",
+            "field_type": "string",
+            "required": false,
+            "trackable": false,
+            "options": null
+          },
+          {
+            "field_name": "What are you grateful for?",
+            "field_type": "integer",
+            "required": true,
+            "trackable": true,
+            "options": null
+          },
+          {
+            "field_name": "Journal method",
+            "field_type": "dropdown",
+            "required": false,
+            "trackable": false,
+            "options": ["Typed", "Handwritten", "Voice Notes"]
+          }
+        ]
+      },
+      "GoalProgressListResponse": {
+        "summary": "An example of Goal Progress list response",
+        "value": {
+          "data": [
+            {
+              "id": "5528e6dd-1894-4a25-aebf-a2cd64f0d771",
+              "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "goal_type_field_id": "d2445a0d-9c74-4858-b330-08aa7d235fe7",
+              "user_id": "1c84f82a-203c-4e64-b1e9-2d0f43ae7fe8",
+              "progress_value": 9,
+              "created_at": "2025-04-15T23:42:47.121Z"
+            },
+            {
+              "id": "6f8f5141-dbea-41d9-9544-4714486fa200",
+              "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "goal_type_field_id": "e6c1bc7e-6430-452f-ad8f-da1f3dbe00c2",
+              "user_id": "1c84f82a-203c-4e64-b1e9-2d0f43ae7fe8",
+              "progress_value": 6,
+              "created_at": "2025-04-19T23:42:46.798Z"
+            },
+            {
+              "id": "7b3bce88-6683-4b9d-85c3-d8732b04d209",
+              "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "goal_type_field_id": "e6c1bc7e-6430-452f-ad8f-da1f3dbe00c2",
+              "user_id": "1c84f82a-203c-4e64-b1e9-2d0f43ae7fe8",
+              "progress_value": 5,
+              "created_at": "2025-04-12T23:42:46.798Z"
+            },
+            {
+              "id": "fe2fc0df-d08a-4b78-91ef-d90921f809d5",
+              "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "goal_type_field_id": "d2445a0d-9c74-4858-b330-08aa7d235fe7",
+              "user_id": "1c84f82a-203c-4e64-b1e9-2d0f43ae7fe8",
+              "progress_value": 8,
+              "created_at": "2025-04-18T23:42:47.121Z"
+            }
+          ]
+        }
+      },
+      "GoalProgressResponse": {
+        "summary": "An example of Goal Type response",
+        "value": {
+          "id": "5528e6dd-1894-4a25-aebf-a2cd64f0d771",
+          "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "goal_type_field_id": "d2445a0d-9c74-4858-b330-08aa7d235fe7",
+          "user_id": "1c84f82a-203c-4e64-b1e9-2d0f43ae7fe8",
+          "progress_value": 9,
+          "created_at": "2025-04-15T23:42:47.121Z"
+        }
+      },
       "DailyQuestListResponse": {
         "summary": "An example of Daily Quest list with one daily and one weekday quest",
         "value": {
           "data": [
             {
-              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-              "user_id": "400eb1db-dc34-418c-b071-714b3732aaef",
-              "goal_id": "12heb1db-dc34-418c-b071-714b3732aaef",
-              "suggestion_id": "56a85f64-5717-4562-b3fc-2c963f66afa6",
+              "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "user_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
               "title": "Drink 2L of water",
               "icon": "\uD83D\uDCA7",
               "frequency": ["Daily"],
@@ -2606,10 +2990,10 @@
               "updated_at": "2025-04-23T20:28:28.425Z"
             },
             {
-              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-              "user_id": "400eb1db-dc34-418c-b071-714b3732aaef",
-              "goal_id": "12heb1db-dc34-418c-b071-714b3732aaef",
-              "suggestion_id": "56a85f64-5717-4562-b3fc-2c963f66afa6",
+              "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "user_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
               "title": "Read 50 pages",
               "icon": "\uD83D\uDCD6",
               "frequency": ["Mondays", "Wednesdays", "Fridays"],
@@ -2619,21 +3003,74 @@
           ]
         }
       },
-      "DailyQuestForm": {
-        "summary": "An example of Daily Quest with daily frequency",
+      "DailyQuestWithCompletedListResponse": {
+        "summary": "An example of Daily Quest list with completed data one daily and one weekday quest",
         "value": {
-          "goal_id": "12heb1db-dc34-418c-b071-714b3732aaef",
-          "suggestion_id": "56a85f64-5717-4562-b3fc-2c963f66afa6",
+          "data": [
+            {
+              "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "user_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "title": "Drink 2L of water",
+              "icon": "\uD83D\uDCA7",
+              "frequency": ["Daily"],
+              "created_at": "2025-04-23T20:28:28.425Z",
+              "updated_at": "2025-04-23T20:28:28.425Z",
+              "completed": true,
+              "completed_at": "2025-04-23T23:43:29.069Z"
+            },
+            {
+              "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "user_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+              "title": "Read 50 pages",
+              "icon": "\uD83D\uDCD6",
+              "frequency": ["Mondays", "Wednesdays", "Fridays"],
+              "created_at": "2025-04-23T20:28:28.425Z",
+              "updated_at": "2025-04-23T20:28:28.425Z",
+              "completed": false,
+              "completed_at": null
+            }
+          ]
+        }
+      },
+      "CreateDailyQuestForm": {
+        "summary": "An example of create Daily Quest with daily frequency",
+        "value": {
+          "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "title": "Drink 2L of water",
           "icon": "\uD83D\uDCA7",
           "frequency": ["Daily"]
         }
       },
-      "DailyQuestFormWithSelectedDays": {
-        "summary": "An example of Daily Quest with different days frequency",
+      "CreateDailyQuestFormWithSelectedDays": {
+        "summary": "An example of create Daily Quest with different days frequency",
         "value": {
-          "goal_id": "12heb1db-dc34-418c-b071-714b3732aaef",
-          "suggestion_id": "56a85f64-5717-4562-b3fc-2c963f66afa6",
+          "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "title": "Read 50 pages",
+          "icon": "\uD83D\uDCD6",
+          "frequency": ["Mondays", "Wednesdays", "Fridays"]
+        }
+      },
+      "UpdateDailyQuestForm": {
+        "summary": "An example of Update Daily Quest with daily frequency",
+        "value": {
+          "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "title": "Drink 2L of water",
+          "icon": "\uD83D\uDCA7",
+          "frequency": ["Daily"]
+        }
+      },
+      "UpdateDailyQuestFormWithSelectedDays": {
+        "summary": "An example of Update Daily Quest with different days frequency",
+        "value": {
+          "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "title": "Read 50 pages",
           "icon": "\uD83D\uDCD6",
           "frequency": ["Mondays", "Wednesdays", "Fridays"]
@@ -2642,10 +3079,10 @@
       "DailyQuestResponse": {
         "summary": "An example of Daily Quest with daily frequency",
         "value": {
-          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          "user_id": "400eb1db-dc34-418c-b071-714b3732aaef",
-          "goal_id": "12heb1db-dc34-418c-b071-714b3732aaef",
-          "suggestion_id": "56a85f64-5717-4562-b3fc-2c963f66afa6",
+          "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "user_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "title": "Drink 2L of water",
           "icon": "\uD83D\uDCA7",
           "frequency": ["Daily"],
@@ -2656,10 +3093,10 @@
       "DailyQuestResponseWithSelectedDays": {
         "summary": "An example of Daily Quest with different days frequency",
         "value": {
-          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          "user_id": "400eb1db-dc34-418c-b071-714b3732aaef",
-          "goal_id": "12heb1db-dc34-418c-b071-714b3732aaef",
-          "suggestion_id": "56a85f64-5717-4562-b3fc-2c963f66afa6",
+          "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "user_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "goal_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
+          "suggestion_id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "title": "Read 50 pages",
           "icon": "\uD83D\uDCD6",
           "frequency": ["Mondays", "Wednesdays", "Fridays"],
@@ -2684,7 +3121,7 @@
       "DailyQuestsSuggestionResponse": {
         "summary": "An example of Daily Quest Suggestion with daily frequency",
         "value": {
-          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "title": "Drink 2L of water",
           "icon": "\uD83D\uDCA7",
           "created_at": "2025-04-23T20:28:28.425Z",
@@ -2694,7 +3131,7 @@
       "DailyQuestsSuggestionResponseWithSelectedDays": {
         "summary": "An example of Daily Quest Suggestion with different days frequency",
         "value": {
-          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
           "title": "Read 50 pages",
           "icon": "\uD83D\uDCD6",
           "created_at": "2025-04-23T20:28:28.425Z",
@@ -2706,14 +3143,14 @@
         "value": {
           "data": [
             {
-              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
               "title": "Drink 2L of water",
               "icon": "\uD83D\uDCA7",
               "created_at": "2025-04-23T20:28:28.425Z",
               "updated_at": "2025-04-23T20:28:28.425Z"
             },
             {
-              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              "id": "87b11604-f554-47f8-9334-39a0d4849ab3",
               "title": "Read 50 pages",
               "icon": "\uD83D\uDCD6",
               "created_at": "2025-04-23T20:28:28.425Z",
@@ -2909,7 +3346,7 @@
           "type": "string"
         },
         "description": "The ID of resource",
-        "example": "396eb1db-dc34-418c-b071-714b3732aaef"
+        "example": "87b11604-f554-47f8-9334-39a0d4849ab3"
       }
     }
   }
