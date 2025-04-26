@@ -1,4 +1,4 @@
-import type { Request, Response } from "express-serve-static-core";
+import type { Response } from "express-serve-static-core";
 import { StatusCodes } from "http-status-codes";
 import GoalTypeService from "@/goal-type/goal-type.service";
 import {
@@ -21,19 +21,20 @@ import GoalTypeModel, {
   GoalTypeDetailedModel,
 } from "@/goal-type/goal-type.domain.types";
 import { z } from "zod";
+import { AuthenticatedRequest } from "@/types/express";
 
 export default class GoalTypeController {
   private goalTypeService = new GoalTypeService();
 
-  getAll = async (req: Request, res: Response): Promise<void> => {
+  getAll = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const types: GoalTypeModel[] = await this.goalTypeService.findAll(
-      req.queryParams
+      req.queryParams!
     );
 
     res.status(StatusCodes.OK).json({ data: toGoalTypeResponses(types) });
   };
 
-  getById = async (req: Request, res: Response): Promise<void> => {
+  getById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const goalTypeDetailed: GoalTypeDetailedModel =
         await this.goalTypeService.findById(req.params.id);
@@ -50,7 +51,7 @@ export default class GoalTypeController {
     }
   };
 
-  create = async (req: Request, res: Response): Promise<void> => {
+  create = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const createGoalTypeForm = CreateGoalTypeForm.safeParse(req.body);
     if (!createGoalTypeForm.success) {
       throw new UnprocessableEntityError({
@@ -80,7 +81,7 @@ export default class GoalTypeController {
     }
   };
 
-  async update(req: Request, res: Response): Promise<void> {
+  update = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const updateGoalTypeForm = UpdateGoalTypeForm.safeParse(req.body);
     if (!updateGoalTypeForm.success) {
       throw new UnprocessableEntityError({
@@ -90,7 +91,7 @@ export default class GoalTypeController {
 
     try {
       const goalType: GoalTypeDetailedModel = await this.goalTypeService.update(
-        req.params.id,
+        req.routeParams!.id,
         updateGoalTypeForm.data
       );
 
@@ -109,9 +110,9 @@ export default class GoalTypeController {
 
       throw e;
     }
-  }
+  };
 
-  delete = async (req: Request, res: Response): Promise<void> => {
+  delete = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       await this.goalTypeService.delete(req.params.id);
 
@@ -125,7 +126,10 @@ export default class GoalTypeController {
     }
   };
 
-  async addFields(req: Request, res: Response): Promise<void> {
+  addFields = async (
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> => {
     const goalTypeFieldForms = z.array(GoalTypeFieldForm).safeParse(req.body);
     if (!goalTypeFieldForms.success) {
       throw new UnprocessableEntityError({
@@ -135,7 +139,7 @@ export default class GoalTypeController {
 
     try {
       const createdFields = await this.goalTypeService.addFields(
-        req.params.id,
+        req.routeParams!.id,
         goalTypeFieldForms.data
       );
 
@@ -149,5 +153,5 @@ export default class GoalTypeController {
 
       throw e;
     }
-  }
+  };
 }

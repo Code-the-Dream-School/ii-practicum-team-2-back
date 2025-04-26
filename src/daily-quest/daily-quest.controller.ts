@@ -1,4 +1,4 @@
-import type { Request, Response } from "express-serve-static-core";
+import { Response } from "express-serve-static-core";
 import { StatusCodes } from "http-status-codes";
 import {
   CreateDailyQuestForm,
@@ -11,6 +11,7 @@ import {
 } from "@/errors/http";
 import DailyQuestService from "@/daily-quest/daily-quest.service";
 import {
+  toDailyQuestForDateResponses,
   toDailyQuestResponse,
   toDailyQuestResponses,
 } from "@/daily-quest/daily-quest.types";
@@ -19,26 +20,25 @@ import {
   ValidationDomainException,
 } from "@/errors/domain";
 import { FlattenedFieldErrors } from "@/types/zod";
+import { AuthenticatedRequest } from "@/types/express";
 
 export default class DailyQuestController {
   private dailyQuestService = new DailyQuestService();
 
-  getAll = async (req: Request, res: Response): Promise<void> => {
+  getAll = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const quests = await this.dailyQuestService.findAll(
-      // req.user.id,
-      "7171f91a-bd67-41c2-9e38-7d81be9edf22",
-      req.queryParams
+      req.user.id,
+      req.queryParams!
     );
 
     res.status(StatusCodes.OK).json({ data: toDailyQuestResponses(quests) });
   };
 
-  getById = async (req: Request, res: Response): Promise<void> => {
+  getById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const quest = await this.dailyQuestService.findById(
-        req.params.id,
-        // req.user.id,
-        "7171f91a-bd67-41c2-9e38-7d81be9edf22"
+        req.routeParams!.id,
+        req.user.id
       );
 
       res.status(StatusCodes.OK).json(toDailyQuestResponse(quest));
@@ -51,7 +51,7 @@ export default class DailyQuestController {
     }
   };
 
-  create = async (req: Request, res: Response): Promise<void> => {
+  create = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const result = CreateDailyQuestForm.safeParse(req.body);
     if (!result.success) {
       throw new UnprocessableEntityError({
@@ -61,8 +61,7 @@ export default class DailyQuestController {
 
     try {
       const quest = await this.dailyQuestService.create(
-        // req.user.id,
-        "7171f91a-bd67-41c2-9e38-7d81be9edf22",
+        req.user.id,
         result.data
       );
 
@@ -81,25 +80,27 @@ export default class DailyQuestController {
     }
   };
 
-  getForDate = async (req: Request, res: Response): Promise<void> => {
-    if (!req.queryParams.date) {
+  getForDate = async (
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> => {
+    if (!req.queryParams!.date) {
       throw new BadRequestError({
         message: "Query parameter 'date' is required",
       });
     }
 
     const quests = await this.dailyQuestService.getForDate(
-      // req.user.id,
-      "7171f91a-bd67-41c2-9e38-7d81be9edf22",
-      req.queryParams
+      req.user.id,
+      req.queryParams!
     );
 
     res.status(StatusCodes.OK).json({
-      data: toDailyQuestResponses(quests),
+      data: toDailyQuestForDateResponses(quests),
     });
   };
 
-  update = async (req: Request, res: Response): Promise<void> => {
+  update = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const result = UpdateDailyQuestForm.safeParse(req.body);
     if (!result.success) {
       throw new UnprocessableEntityError({
@@ -109,9 +110,8 @@ export default class DailyQuestController {
 
     try {
       const quest = await this.dailyQuestService.update(
-        req.params.id,
-        // req.user.id,
-        "7171f91a-bd67-41c2-9e38-7d81be9edf22",
+        req.routeParams!.id,
+        req.user.id,
         result.data
       );
 
@@ -130,13 +130,9 @@ export default class DailyQuestController {
     }
   };
 
-  delete = async (req: Request, res: Response): Promise<void> => {
+  delete = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      await this.dailyQuestService.delete(
-        req.params.id,
-        // req.user.id,
-        "7171f91a-bd67-41c2-9e38-7d81be9edf22"
-      );
+      await this.dailyQuestService.delete(req.routeParams!.id, req.user.id);
 
       res.status(StatusCodes.NO_CONTENT).send();
     } catch (e: unknown) {
@@ -148,7 +144,10 @@ export default class DailyQuestController {
     }
   };
 
-  toggleCompletion = async (req: Request, res: Response): Promise<void> => {
+  toggleCompletion = async (
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> => {
     const { date } = req.body;
 
     if (!date) {
@@ -159,9 +158,8 @@ export default class DailyQuestController {
 
     try {
       await this.dailyQuestService.toggleCompletion(
-        req.params.id,
-        // req.user.id,
-        "7171f91a-bd67-41c2-9e38-7d81be9edf22",
+        req.routeParams!.id,
+        req.user.id,
         new Date(date)
       );
 

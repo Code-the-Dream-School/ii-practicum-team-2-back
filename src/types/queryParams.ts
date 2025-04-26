@@ -23,7 +23,6 @@ export const QueryParamsRawSchema = z.object({
     })
     .optional(),
 });
-
 export type RawQueryParams = z.infer<typeof QueryParamsRawSchema>;
 
 export enum SortingOrder {

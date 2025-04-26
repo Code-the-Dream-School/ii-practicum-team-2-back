@@ -1,16 +1,17 @@
-import type { Request, Response } from "express-serve-static-core";
+import type { Response } from "express-serve-static-core";
 import { StatusCodes } from "http-status-codes";
+import { AuthenticatedRequest } from "@/types/express";
 
 export default class GoalBoardImageController {
-  async getAll(req: Request, res: Response): Promise<void> {
+  getAll = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     res.status(StatusCodes.OK).json({ message: "It works!" });
-  }
+  };
 
-  async upload(req: Request, res: Response): Promise<void> {
+  upload = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     res.status(StatusCodes.OK).json({ message: "It works!" });
-  }
+  };
 
-  async remove(req: Request, res: Response): Promise<void> {
+  remove = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     res.status(StatusCodes.OK).json({ message: "It works!" });
-  }
+  };
 }

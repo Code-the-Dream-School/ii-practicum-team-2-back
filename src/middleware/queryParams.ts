@@ -3,6 +3,9 @@ import type { NextFunction, Request, Response } from "express";
 import { QueryParamsRawSchema } from "@/types/queryParams";
 import { BadRequestError } from "@/errors/http";
 
+/**
+ * Take care of all needed params according to the QueryParamsRawSchema are being parsed from query params and are valid
+ */
 export function queryParamsParser(
   req: Request,
   _res: Response,

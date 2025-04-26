@@ -16,6 +16,6 @@ export const defineRoutes = (app: Express) => {
   app.use("/api/v1/goal-board-images", goalBoardImageRouter);
   app.use("/api/v1/goal-types", goalTypeRouter);
   app.use("/api/v1/goals", goalProgressRouter);
-  app.use("/api/v1/daily-quests", dailyQuestRouter);
   app.use("/api/v1/daily-quests/suggestions", dailyQuestSuggestionRouter);
+  app.use("/api/v1/daily-quests", dailyQuestRouter);
 };

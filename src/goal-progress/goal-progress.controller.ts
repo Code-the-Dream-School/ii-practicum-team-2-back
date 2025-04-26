@@ -1,4 +1,4 @@
-import type { Request, Response } from "express-serve-static-core";
+import type { Response } from "express-serve-static-core";
 import { StatusCodes } from "http-status-codes";
 import GoalProgressService from "@/goal-progress/goal-progress.service";
 import {
@@ -12,16 +12,16 @@ import {
   ValidationDomainException,
 } from "@/errors/domain";
 import { FlattenedFieldErrors } from "@/types/zod";
+import { AuthenticatedRequest } from "@/types/express";
 
 export default class GoalProgressController {
   private goalProgressService: GoalProgressService = new GoalProgressService();
 
-  getAll = async (req: Request, res: Response): Promise<void> => {
-    // const progress = await this.goalProgressService.getAllByGoalId(req.user.id, req.params.id);
+  getAll = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const progress = await this.goalProgressService.findAll(
-      "7171f91a-bd67-41c2-9e38-7d81be9edf22",
-      req.params.id,
-      req.queryParams
+      req.user.id,
+      req.routeParams!.id,
+      req.queryParams!
     );
 
     res
@@ -29,7 +29,7 @@ export default class GoalProgressController {
       .json({ data: toGoalProgressResponses(progress) });
   };
 
-  create = async (req: Request, res: Response): Promise<void> => {
+  create = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const createGoalProgressForm = CreateGoalProgressForm.safeParse(req.body);
     if (!createGoalProgressForm.success) {
       throw new UnprocessableEntityError({
@@ -38,10 +38,9 @@ export default class GoalProgressController {
     }
 
     try {
-      // const progress = await this.goalProgressService.create(req.user.id, req.params.id, parsed.data);
       const progress = await this.goalProgressService.create(
-        "7171f91a-bd67-41c2-9e38-7d81be9edf22",
-        req.params.id,
+        req.user.id,
+        req.routeParams!.id,
         createGoalProgressForm.data
       );
 

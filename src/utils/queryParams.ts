@@ -1,4 +1,5 @@
 import QueryParams, { RawQueryParams, SortingOrder } from "@/types/queryParams";
+import { parse } from "date-fns";
 
 export const parseQueryParams = (query: RawQueryParams): QueryParams => {
   const limitRaw = query.limit ?? "10";
@@ -10,7 +11,9 @@ export const parseQueryParams = (query: RawQueryParams): QueryParams => {
     ? SortingOrder.DESC
     : SortingOrder.ASC;
 
-  const date = query.date ? new Date(query.date) : undefined;
+  const date = query.date
+    ? parse(query.date, "yyyy-MM-dd", new Date())
+    : undefined;
 
   return {
     limit,

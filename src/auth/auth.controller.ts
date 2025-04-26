@@ -1,6 +1,7 @@
 import type { Request, Response } from "express-serve-static-core";
 import { StatusCodes } from "http-status-codes";
 import { AuthService } from "./auth.service";
+import { AuthenticatedRequest } from "@/types/express";
 
 const authService = new AuthService();
 
@@ -19,7 +20,7 @@ export default class AuthController {
     res.status(StatusCodes.OK).json({ message: "It works!" });
   }
 
-  async logout(req: Request, res: Response) {
+  async logout(req: AuthenticatedRequest, res: Response) {
     // TO-DO: implement logout
     // const result = await authService.logout();
 

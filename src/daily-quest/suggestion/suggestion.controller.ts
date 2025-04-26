@@ -19,11 +19,10 @@ import {
 export default class DailyQuestSuggestionController {
   private dailyQuestSuggestionService = new DailyQuestSuggestionService();
 
-  getAll = async (req: Request, res: Response): Promise<void> => {
+  getAll = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const suggestions = await this.dailyQuestSuggestionService.findAll(
-      // req.user.id,
-      "7171f91a-bd67-41c2-9e38-7d81be9edf22",
-      req.queryParams
+      req.user.id,
+      req.queryParams!
     );
 
     res
@@ -31,7 +30,7 @@ export default class DailyQuestSuggestionController {
       .json({ data: toDailyQuestSuggestionResponses(suggestions) });
   };
 
-  async getById(req: Request, res: Response): Promise<void> {
+  getById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const suggestion = await this.dailyQuestSuggestionService.findById(
         req.params.id
@@ -47,10 +46,10 @@ export default class DailyQuestSuggestionController {
 
       throw e;
     }
-  }
+  };
 
-  create = async (req: Request, res: Response): Promise<void> => {
-    const result = CreateDailyQuestForm.safeParse(req.body);
+  create = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const result = CreateDailyQuestSuggestionForm.safeParse(req.body);
     if (!result.success) {
       throw new UnprocessableEntityError({
         errors: result.error.flatten().fieldErrors,
@@ -79,8 +78,8 @@ export default class DailyQuestSuggestionController {
     }
   };
 
-  update = async (req: Request, res: Response): Promise<void> => {
-    const result = UpdateDailyQuestForm.safeParse(req.body);
+  update = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const result = UpdateDailyQuestSuggestionForm.safeParse(req.body);
     if (!result.success) {
       throw new UnprocessableEntityError({
         errors: result.error.flatten().fieldErrors,
@@ -89,7 +88,7 @@ export default class DailyQuestSuggestionController {
 
     try {
       const suggestion = await this.dailyQuestSuggestionService.update(
-        req.params.id,
+        req.routeParams!.id,
         result.data
       );
 
@@ -110,7 +109,7 @@ export default class DailyQuestSuggestionController {
     }
   };
 
-  delete = async (req: Request, res: Response): Promise<void> => {
+  delete = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       await this.dailyQuestSuggestionService.delete(req.params.id);
 
