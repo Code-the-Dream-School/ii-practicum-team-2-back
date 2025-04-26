@@ -1,3 +1,8 @@
-export const normalizeToDateOnly = async (date: Date): Promise<Date> => {
-  return new Date(date.toISOString().split("T")[0]);
+import { format } from "date-fns";
+
+/**
+ * Parse date and return the day of the week
+ */
+export const getWeekdayFromDate = async (date: Date): Promise<string> => {
+  return format(date, "EEEE");
 };

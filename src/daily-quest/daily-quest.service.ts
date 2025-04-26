@@ -1,5 +1,10 @@
 import { prisma } from "@/db/prisma";
-import { DailyQuestModel, toDailyQuestModel } from "./daily-quest.domain.types";
+import {
+  DailyQuestCompletionModel,
+  DailyQuestModel,
+  DailyQuestWithCompletionModel,
+  toDailyQuestModel,
+} from "./daily-quest.domain.types";
 import {
   CreateDailyQuestFormType,
   UpdateDailyQuestFormType,
@@ -16,12 +21,14 @@ import prismaErrorCodes from "@/types/prismaErrorCodes";
 import { logPrismaKnownError } from "@/utils/logger";
 import {
   validateDailyQuestExists,
+  validateDailyQuestForCreate,
   validateDailyQuestForUpdate,
-  validateGoalExists,
 } from "@/daily-quest/daily-quest.validators";
 import QueryParams from "@/types/queryParams";
 import { Frequency } from "@/types/enums";
-import { normalizeToDateOnly } from "@/utils/date";
+import { getWeekdayFromDate } from "@/utils/date";
+import InconsistentColumnDataDomainException from "../errors/domain/inconsistentColumnDataDomain";
+import { startOfDay } from "date-fns";
 
 export default class DailyQuestService {
   findAll = async (
@@ -71,9 +78,9 @@ export default class DailyQuestService {
     userId: string,
     form: CreateDailyQuestFormType
   ): Promise<DailyQuestModel> => {
-    await validateGoalExists(userId, form);
-
     try {
+      await validateDailyQuestForCreate(userId, form);
+
       const dailyQuest = await prisma.dailyQuest.create({
         data: {
           title: form.title,
@@ -102,6 +109,13 @@ export default class DailyQuestService {
             message: "A new daily quest cannot be created with this name",
           });
         }
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
+          });
+        }
 
         throw new UnknownDomainException({
           message: "There is no daily quest with the given data",
@@ -118,46 +132,64 @@ export default class DailyQuestService {
     userId: string,
     form: UpdateDailyQuestFormType
   ): Promise<DailyQuestModel> => {
-    await validateDailyQuestForUpdate(id, userId, form);
-
     try {
+      await validateDailyQuestForUpdate(id, userId, form);
+
       const dailyQuest = await prisma.dailyQuest.update({
         where: { id },
         data: {
           title: form.title,
           icon: form.icon,
-          goal_id: form.goal_id ?? null,
           frequency: form.frequency,
         },
       });
 
       return toDailyQuestModel(dailyQuest);
     } catch (e: unknown) {
-      if (e instanceof PrismaClientKnownRequestError && e.code === "P2002") {
-        throw new UniqueConstraintDomainException({
-          message: "Daily quest with this title already exists",
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === prismaErrorCodes.UNIQUE_CONSTRAINT_FAILED_CODE) {
+          logPrismaKnownError(e);
+
+          throw new UniqueConstraintDomainException({
+            message: "A new daily quest cannot be created with this email",
+          });
+        }
+        if (e.code === prismaErrorCodes.FOREIGN_KEY_CONSTRAINT_FAILED_CODE) {
+          logPrismaKnownError(e);
+
+          throw new ForeignKeyConstraintDomainException({
+            message: "A new daily quest cannot be created with this name",
+          });
+        }
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
+          });
+        }
+
+        throw new UnknownDomainException({
+          message: "There is no daily quest with the given data",
+          context: { e },
         });
       }
 
-      throw new UnknownDomainException({
-        message: "Failed to update daily quest",
-        context: { e },
-      });
+      throw e;
     }
   };
 
   getForDate = async (
     userId: string,
     { limit, sortBy, sortOrder, date }: QueryParams
-  ): Promise<DailyQuestModel[]> => {
+  ): Promise<DailyQuestWithCompletionModel[]> => {
     if (!date) {
       throw new ValidationDomainException({
         context: { date: ["Query parameter 'date' is required"] },
       });
     }
 
-    const dayOfWeek = (date.toLocaleString("en-US", { weekday: "long" }) +
-      "s") as Frequency;
+    const dayOfWeek = ((await getWeekdayFromDate(date)) + "s") as Frequency;
     if (!(dayOfWeek in Frequency)) {
       throw new ValidationDomainException({
         context: { date: ["Invalid weekday format derived from date"] },
@@ -174,9 +206,18 @@ export default class DailyQuestService {
       },
       orderBy: { [sortBy]: sortOrder },
       take: limit,
+      include: {
+        daily_quest_completions: {
+          where: { date: date },
+        },
+      },
     });
 
-    return dailyQuests.map(toDailyQuestModel);
+    return dailyQuests.map((dailyQuests) => ({
+      ...dailyQuests,
+      frequency: dailyQuests.frequency as Frequency[],
+      daily_quest_completion: dailyQuests.daily_quest_completions,
+    }));
   };
 
   delete = async (id: string, userId: string): Promise<void> => {
@@ -192,19 +233,16 @@ export default class DailyQuestService {
     userId: string,
     date: Date
   ): Promise<boolean> => {
-    await validateDailyQuestExists(questId, userId);
-
     try {
-      const dateOnly = await normalizeToDateOnly(date);
+      await validateDailyQuestExists(questId, userId);
 
-      const dailyQuestCompletion = await prisma.dailyQuestCompletion.findFirst({
-        where: {
-          daily_quest_id: questId,
-          user_id: userId,
-          date: dateOnly,
-        },
-      });
+      const dateOnly = startOfDay(date);
 
+      const dailyQuestCompletion = await this.findQuestCompletion(
+        questId,
+        userId,
+        dateOnly
+      );
       if (dailyQuestCompletion) {
         await prisma.dailyQuestCompletion.delete({
           where: { id: dailyQuestCompletion.id },
@@ -213,14 +251,7 @@ export default class DailyQuestService {
         return true;
       }
 
-      await prisma.dailyQuestCompletion.create({
-        data: {
-          daily_quest_id: questId,
-          user_id: userId,
-          date: dateOnly,
-          completed_at: new Date(),
-        },
-      });
+      await this.createQuestCompletion(questId, userId, dateOnly);
 
       return true;
     } catch (e: unknown) {
@@ -241,6 +272,13 @@ export default class DailyQuestService {
               "A new daily quest completion cannot be created with this data",
           });
         }
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
+          });
+        }
 
         throw new UnknownDomainException({
           message: "There is no quest completion cannot with the given data",
@@ -256,6 +294,35 @@ export default class DailyQuestService {
     return (await this.getDailyQuestsAddedWithSuggestion(userId)).map(
       (row) => row.suggestion_id!
     );
+  };
+
+  private findQuestCompletion = async (
+    questId: string,
+    userId: string,
+    date: Date
+  ): Promise<DailyQuestCompletionModel | null> => {
+    return prisma.dailyQuestCompletion.findFirst({
+      where: {
+        daily_quest_id: questId,
+        user_id: userId,
+        date,
+      },
+    });
+  };
+
+  private createQuestCompletion = async (
+    questId: string,
+    userId: string,
+    date: Date
+  ): Promise<DailyQuestCompletionModel> => {
+    return prisma.dailyQuestCompletion.create({
+      data: {
+        daily_quest_id: questId,
+        user_id: userId,
+        date,
+        completed_at: new Date(),
+      },
+    });
   };
 
   private getDailyQuestsAddedWithSuggestion = async (
