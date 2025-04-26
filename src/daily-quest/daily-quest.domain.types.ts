@@ -13,6 +13,20 @@ export interface DailyQuestModel {
   updated_at: Date;
 }
 
+export interface DailyQuestWithCompletionModel extends DailyQuestModel {
+  daily_quest_completions: {
+    completed_at: Date;
+  }[];
+}
+
+export interface DailyQuestCompletionModel {
+  id: string;
+  daily_quest_id: string;
+  user_id: string;
+  date: Date;
+  completed_at: Date;
+}
+
 export function toDailyQuestModel(
   prismaModel: PrismaDailyQuest
 ): DailyQuestModel {
@@ -20,7 +34,7 @@ export function toDailyQuestModel(
     id: prismaModel.id,
     user_id: prismaModel.user_id,
     goal_id: prismaModel.goal_id,
-    suggestion_id: prismaModel.goal_id,
+    suggestion_id: prismaModel.suggestion_id,
     title: prismaModel.title,
     icon: prismaModel.icon,
     frequency: prismaModel.frequency as Frequency[],

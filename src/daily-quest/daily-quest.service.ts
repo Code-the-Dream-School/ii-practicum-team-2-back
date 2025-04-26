@@ -334,6 +334,7 @@ export default class DailyQuestService {
         suggestion_id: { not: null },
       },
       select: { suggestion_id: true },
+      distinct: ["suggestion_id"],
     });
   };
 }

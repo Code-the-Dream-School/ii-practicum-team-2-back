@@ -20,6 +20,7 @@ import {
   validateGoalFieldValuesUpdateInput,
 } from "@/goal/goal.validators";
 import prismaErrorCodes from "@/types/prismaErrorCodes";
+import InconsistentColumnDataDomainException from "../errors/domain/inconsistentColumnDataDomain";
 
 export default class GoalService {
   findAll = async (
@@ -64,9 +65,9 @@ export default class GoalService {
     userId: string,
     form: GoalRequestFormType
   ): Promise<GoalModel> => {
-    await validateGoalCreationInput(form);
-
     try {
+      await validateGoalCreationInput(form);
+
       return await prisma.goal.create({
         data: {
           name: form.name,
@@ -101,6 +102,13 @@ export default class GoalService {
             message: "A new goal cannot be created with this email",
           });
         }
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
+          });
+        }
 
         throw new UnknownDomainException({
           message: "There is no goal with the given data",
@@ -117,9 +125,9 @@ export default class GoalService {
     userId: string,
     form: UpdateGoalFormType
   ): Promise<GoalModel> => {
-    await validateGoalExists(id, userId);
-
     try {
+      await validateGoalExists(id, userId);
+
       return await prisma.goal.update({
         where: { id },
         data: {
@@ -132,6 +140,14 @@ export default class GoalService {
       });
     } catch (e: unknown) {
       if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
+          });
+        }
+
         throw new UnknownDomainException({
           message: "Failed to update goal",
           context: { e },

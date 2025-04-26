@@ -9,10 +9,10 @@ model DailyQuest {
   created_at    DateTime    @default(now())
   updated_at    DateTime    @updatedAt
 
-  user        User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  goal        Goal?                  @relation(fields: [goal_id], references: [id])
-  suggestion  DailyQuestSuggestion?  @relation(fields: [suggestion_id], references: [id])
-  completions DailyQuestCompletion[]
+  user                    User                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  goal                    Goal?                 @relation(fields: [goal_id], references: [id])
+  daily_quest_suggestion  DailyQuestSuggestion? @relation(fields: [suggestion_id], references: [id])
+  daily_quest_completions DailyQuestCompletion[]
 
   @@unique([user_id, title])
   @@map("daily_quest")

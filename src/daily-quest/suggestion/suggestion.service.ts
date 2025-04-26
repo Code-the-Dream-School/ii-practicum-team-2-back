@@ -16,8 +16,13 @@ import {
   CreateDailyQuestSuggestionFormType,
   UpdateDailyQuestSuggestionFormType,
 } from "@/daily-quest/suggestion/suggestion.forms";
-import { validateDailyQuestSuggestionExists } from "@/daily-quest/suggestion/suggestion.validators";
+import {
+  validateDailyQuestSuggestionExists,
+  validateDailyQuestSuggestionForUpdate,
+  validateDailyQuestSuggestionWithTitleIconDoesntExists,
+} from "@/daily-quest/suggestion/suggestion.validators";
 import DailyQuestService from "@/daily-quest/daily-quest.service";
+import InconsistentColumnDataDomainException from "../../errors/domain/inconsistentColumnDataDomain";
 
 export default class DailyQuestSuggestionService {
   private dailyQuestService = new DailyQuestService();
@@ -75,6 +80,8 @@ export default class DailyQuestSuggestionService {
     form: CreateDailyQuestSuggestionFormType
   ): Promise<DailyQuestSuggestionModel> => {
     try {
+      await validateDailyQuestSuggestionWithTitleIconDoesntExists(form);
+
       const dailyQuestSuggestion = await prisma.dailyQuestSuggestion.create({
         data: {
           title: form.title,
@@ -93,6 +100,13 @@ export default class DailyQuestSuggestionService {
               "A new daily quest suggestion cannot be created with this title and icon",
           });
         }
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
+          });
+        }
 
         throw new UnknownDomainException({
           message: "There is no daily quest suggestion with the given data",
@@ -108,9 +122,9 @@ export default class DailyQuestSuggestionService {
     id: string,
     form: UpdateDailyQuestSuggestionFormType
   ): Promise<DailyQuestSuggestionModel> => {
-    await validateDailyQuestSuggestionExists(id);
-
     try {
+      await validateDailyQuestSuggestionForUpdate(id, form);
+
       const dailyQuestSuggestion = await prisma.dailyQuestSuggestion.update({
         where: { id },
         data: {
@@ -121,17 +135,30 @@ export default class DailyQuestSuggestionService {
 
       return toDailyQuestSuggestionModel(dailyQuestSuggestion);
     } catch (e: unknown) {
-      if (e instanceof PrismaClientKnownRequestError && e.code === "P2002") {
-        throw new UniqueConstraintDomainException({
-          message:
-            "Daily quest suggestion with this title and icon already exists",
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === prismaErrorCodes.UNIQUE_CONSTRAINT_FAILED_CODE) {
+          logPrismaKnownError(e);
+
+          throw new UniqueConstraintDomainException({
+            message:
+              "A new daily quest suggestion cannot be created with this title and icon",
+          });
+        }
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
+          });
+        }
+
+        throw new UnknownDomainException({
+          message: "There is no daily quest suggestion with the given data",
+          context: { e },
         });
       }
 
-      throw new UnknownDomainException({
-        message: "Failed to update daily quest suggestion",
-        context: { e },
-      });
+      throw e;
     }
   };
 

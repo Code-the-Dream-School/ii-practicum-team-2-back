@@ -1,4 +1,4 @@
-import type { Request, Response } from "express-serve-static-core";
+import type { Response } from "express-serve-static-core";
 import { StatusCodes } from "http-status-codes";
 import DailyQuestSuggestionService from "@/daily-quest/suggestion/suggestion.service";
 import {
@@ -6,15 +6,16 @@ import {
   ValidationDomainException,
 } from "@/errors/domain";
 import { NotFoundError, UnprocessableEntityError } from "@/errors/http";
-import {
-  CreateDailyQuestForm,
-  UpdateDailyQuestForm,
-} from "@/daily-quest/daily-quest.forms";
 import { FlattenedFieldErrors } from "@/types/zod";
 import {
   toDailyQuestSuggestionResponse,
   toDailyQuestSuggestionResponses,
 } from "@/daily-quest/suggestion/suggestion.types";
+import { AuthenticatedRequest } from "@/types/express";
+import {
+  CreateDailyQuestSuggestionForm,
+  UpdateDailyQuestSuggestionForm,
+} from "@/daily-quest/suggestion/suggestion.forms";
 
 export default class DailyQuestSuggestionController {
   private dailyQuestSuggestionService = new DailyQuestSuggestionService();

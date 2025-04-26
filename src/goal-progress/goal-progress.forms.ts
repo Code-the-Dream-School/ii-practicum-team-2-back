@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const CreateGoalProgressForm = z.object({
-  goal_type_field_id: z.string(),
+  goal_type_field_id: z.string().uuid(),
   progress_value: z.number().int().nonnegative(),
 });
 

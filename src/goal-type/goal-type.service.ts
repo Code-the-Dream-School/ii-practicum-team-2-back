@@ -21,6 +21,7 @@ import {
 } from "@/goal-type/goal-type.forms";
 import { validateGoalTypeExists } from "@/goal-type/goal-type.validators";
 import prismaErrorCodes from "@/types/prismaErrorCodes";
+import InconsistentColumnDataDomainException from "../errors/domain/inconsistentColumnDataDomain";
 
 export default class GoalTypeService {
   findAll = async ({
@@ -102,6 +103,13 @@ export default class GoalTypeService {
             message: "A new goal type cannot be created with this name",
           });
         }
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
+          });
+        }
 
         throw new UnknownDomainException({
           message: "There is no goal type with the given data",
@@ -117,9 +125,9 @@ export default class GoalTypeService {
     id: string,
     form: UpdateGoalTypeFormType
   ): Promise<GoalTypeDetailedModel> => {
-    await validateGoalTypeExists(id);
-
     try {
+      await validateGoalTypeExists(id);
+
       const updatedModel = await prisma.goalType.update({
         where: { id },
         data: {
@@ -134,6 +142,14 @@ export default class GoalTypeService {
       return toGoalTypeDetailedModel(updatedModel);
     } catch (e: unknown) {
       if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
+          });
+        }
+
         throw new UnknownDomainException({
           message: "Failed to update goal",
           context: { e },

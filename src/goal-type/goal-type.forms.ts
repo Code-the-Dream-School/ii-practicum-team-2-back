@@ -7,7 +7,7 @@ export const GoalTypeFieldForm = z
     field_type: z.nativeEnum(FieldType),
     required: z.boolean(),
     trackable: z.boolean().optional(),
-    options: z.array(z.string()).optional(),
+    options: z.array(z.string()).nullable().optional(),
   })
   .refine(
     (data) => data.field_type !== FieldType.Dropdown || !!data.options?.length,

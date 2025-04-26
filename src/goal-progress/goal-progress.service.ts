@@ -11,6 +11,7 @@ import {
   UnknownDomainException,
 } from "@/errors/domain";
 import { validateGoalProgressCreationInput } from "@/goal-progress/goal-progress.validators";
+import InconsistentColumnDataDomainException from "../errors/domain/inconsistentColumnDataDomain";
 
 export default class GoalProgressService {
   findAll = async (
@@ -30,9 +31,9 @@ export default class GoalProgressService {
     goalId: string,
     form: CreateGoalProgressFormType
   ): Promise<GoalProgressModel> => {
-    await validateGoalProgressCreationInput(userId, goalId, form);
-
     try {
+      await validateGoalProgressCreationInput(goalId, userId, form);
+
       return await prisma.goalProgress.create({
         data: {
           goal_id: goalId,
@@ -55,6 +56,13 @@ export default class GoalProgressService {
 
           throw new ForeignKeyConstraintDomainException({
             message: "A new goal progress cannot be created with this email",
+          });
+        }
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new goal cannot be created with this email",
           });
         }
 
