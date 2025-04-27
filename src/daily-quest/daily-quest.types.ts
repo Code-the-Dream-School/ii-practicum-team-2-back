@@ -43,7 +43,7 @@ export const toDailyQuestResponse = (
   created_at: model.created_at.toISOString(),
   updated_at: model.updated_at.toISOString(),
 });
-export const toDailyQuestResponses = (
+export const toDailyQuestResponseList = (
   models: DailyQuestModel[]
 ): DailyQuestResponse[] => models.map(toDailyQuestResponse);
 
@@ -63,6 +63,7 @@ export const toDailyQuestForDateResponse = (
   completed_at:
     model.daily_quest_completions?.[0]?.completed_at?.toISOString() || null,
 });
-export const toDailyQuestForDateResponses = (
+
+export const toDailyQuestForDateResponseList = (
   models: DailyQuestWithCompletionModel[]
 ): DailyQuestForDateResponse[] => models.map(toDailyQuestForDateResponse);

@@ -20,6 +20,6 @@ export const toGoalProgressResponse = (
   created_at: model.created_at.toISOString(),
 });
 
-export const toGoalProgressResponses = (
+export const toGoalProgressResponseList = (
   list: GoalProgressModel[]
 ): GoalProgressResponse[] => list.map(toGoalProgressResponse);

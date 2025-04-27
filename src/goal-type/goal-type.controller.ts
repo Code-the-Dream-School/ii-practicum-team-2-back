@@ -3,8 +3,8 @@ import { StatusCodes } from "http-status-codes";
 import GoalTypeService from "@/goal-type/goal-type.service";
 import {
   toGoalTypeDetailedResponse,
-  toGoalTypeFieldResponses,
-  toGoalTypeResponses,
+  toGoalTypeFieldResponseList,
+  toGoalTypeResponseList,
 } from "@/goal-type/goal-type.types";
 import {
   NotFoundDomainException,
@@ -21,17 +21,24 @@ import GoalTypeModel, {
   GoalTypeDetailedModel,
 } from "@/goal-type/goal-type.domain.types";
 import { z } from "zod";
-import { AuthenticatedRequest } from "@/types/express";
+import {
+  AuthenticatedRequest,
+  RequestWithQueryParams,
+  RequestWithRouteParams,
+} from "@/types/express";
 
 export default class GoalTypeController {
   private goalTypeService = new GoalTypeService();
 
-  getAll = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getAll = async (
+    req: AuthenticatedRequest & RequestWithQueryParams,
+    res: Response
+  ): Promise<void> => {
     const types: GoalTypeModel[] = await this.goalTypeService.findAll(
-      req.queryParams!
+      req.queryParams
     );
 
-    res.status(StatusCodes.OK).json({ data: toGoalTypeResponses(types) });
+    res.status(StatusCodes.OK).json({ data: toGoalTypeResponseList(types) });
   };
 
   getById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -81,7 +88,10 @@ export default class GoalTypeController {
     }
   };
 
-  update = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  update = async (
+    req: AuthenticatedRequest & RequestWithRouteParams,
+    res: Response
+  ): Promise<void> => {
     const updateGoalTypeForm = UpdateGoalTypeForm.safeParse(req.body);
     if (!updateGoalTypeForm.success) {
       throw new UnprocessableEntityError({
@@ -91,7 +101,7 @@ export default class GoalTypeController {
 
     try {
       const goalType: GoalTypeDetailedModel = await this.goalTypeService.update(
-        req.routeParams!.id,
+        req.routeParams.id,
         updateGoalTypeForm.data
       );
 
@@ -127,7 +137,7 @@ export default class GoalTypeController {
   };
 
   addFields = async (
-    req: AuthenticatedRequest,
+    req: AuthenticatedRequest & RequestWithRouteParams,
     res: Response
   ): Promise<void> => {
     const goalTypeFieldForms = z.array(GoalTypeFieldForm).safeParse(req.body);
@@ -139,13 +149,13 @@ export default class GoalTypeController {
 
     try {
       const createdFields = await this.goalTypeService.addFields(
-        req.routeParams!.id,
+        req.routeParams.id,
         goalTypeFieldForms.data
       );
 
       res
         .status(StatusCodes.CREATED)
-        .json(toGoalTypeFieldResponses(createdFields));
+        .json(toGoalTypeFieldResponseList(createdFields));
     } catch (e: unknown) {
       if (e instanceof NotFoundDomainException) {
         throw new NotFoundError({ message: e.message });

@@ -107,7 +107,7 @@ export default class GoalTypeService {
           logPrismaKnownError(e);
 
           throw new InconsistentColumnDataDomainException({
-            message: "A new goal cannot be created with this email",
+            message: "A new goal type cannot be created with this email",
           });
         }
 
@@ -146,7 +146,7 @@ export default class GoalTypeService {
           logPrismaKnownError(e);
 
           throw new InconsistentColumnDataDomainException({
-            message: "A new goal cannot be created with this email",
+            message: "A new goal type cannot be created with this email",
           });
         }
 

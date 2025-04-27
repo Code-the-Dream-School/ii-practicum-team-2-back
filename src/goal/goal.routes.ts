@@ -1,8 +1,14 @@
-import { RequestHandler, Router } from "express";
+import { Router } from "express";
 import GoalController from "./goal.controller";
 import { queryParamsParser } from "@/middleware/queryParams";
 import { auth } from "@/middleware/authentication";
 import { routeParamsParser } from "@/middleware/routeParams";
+import { asyncController } from "@/utils/controller";
+import {
+  AuthenticatedRequest,
+  RequestWithQueryParams,
+  RequestWithRouteParams,
+} from "@/types/express";
 
 const router = Router();
 const goalController = new GoalController();
@@ -11,33 +17,47 @@ router.get(
   "/",
   auth,
   queryParamsParser,
-  goalController.getAll as RequestHandler
+  asyncController<AuthenticatedRequest & RequestWithQueryParams>(
+    goalController.getAll
+  )
 );
 router.get(
   "/:id",
   auth,
   routeParamsParser,
-  goalController.getById as RequestHandler
+  asyncController<AuthenticatedRequest & RequestWithRouteParams>(
+    goalController.getById
+  )
 );
-router.post("/", auth, goalController.create as RequestHandler);
+router.post(
+  "/",
+  auth,
+  asyncController<AuthenticatedRequest>(goalController.create)
+);
 router.patch(
   "/:id",
   auth,
   routeParamsParser,
-  goalController.update as RequestHandler
+  asyncController<AuthenticatedRequest & RequestWithRouteParams>(
+    goalController.update
+  )
 );
 router.delete(
   "/:id",
   auth,
   routeParamsParser,
-  goalController.delete as RequestHandler
+  asyncController<AuthenticatedRequest & RequestWithRouteParams>(
+    goalController.delete
+  )
 );
 
 router.patch(
   "/:id/field-values",
   auth,
   routeParamsParser,
-  goalController.updateFieldValues as RequestHandler
+  asyncController<AuthenticatedRequest & RequestWithRouteParams>(
+    goalController.updateFieldValues
+  )
 );
 
 export default router;

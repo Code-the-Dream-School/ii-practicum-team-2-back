@@ -18,6 +18,6 @@ export const toDailyQuestSuggestionResponse = (
   updated_at: model.updated_at.toISOString(),
 });
 
-export const toDailyQuestSuggestionResponses = (
+export const toDailyQuestSuggestionResponseList = (
   models: DailyQuestSuggestionModel[]
 ): DailyQuestSuggestionResponse[] => models.map(toDailyQuestSuggestionResponse);

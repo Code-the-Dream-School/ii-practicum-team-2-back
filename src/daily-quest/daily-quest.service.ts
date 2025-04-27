@@ -26,9 +26,8 @@ import {
 } from "@/daily-quest/daily-quest.validators";
 import QueryParams from "@/types/queryParams";
 import { Frequency } from "@/types/enums";
-import { getWeekdayFromDate } from "@/utils/date";
 import InconsistentColumnDataDomainException from "../errors/domain/inconsistentColumnDataDomain";
-import { startOfDay } from "date-fns";
+import { format, startOfDay } from "date-fns";
 
 export default class DailyQuestService {
   findAll = async (
@@ -189,7 +188,7 @@ export default class DailyQuestService {
       });
     }
 
-    const dayOfWeek = ((await getWeekdayFromDate(date)) + "s") as Frequency;
+    const dayOfWeek = (format(date, "EEEE") + "s") as Frequency;
     if (!(dayOfWeek in Frequency)) {
       throw new ValidationDomainException({
         context: { date: ["Invalid weekday format derived from date"] },
@@ -213,10 +212,10 @@ export default class DailyQuestService {
       },
     });
 
-    return dailyQuests.map((dailyQuests) => ({
-      ...dailyQuests,
-      frequency: dailyQuests.frequency as Frequency[],
-      daily_quest_completion: dailyQuests.daily_quest_completions,
+    return dailyQuests.map((quest) => ({
+      ...quest,
+      frequency: quest.frequency as Frequency[],
+      daily_quest_completion: quest.daily_quest_completions,
     }));
   };
 
@@ -276,12 +275,13 @@ export default class DailyQuestService {
           logPrismaKnownError(e);
 
           throw new InconsistentColumnDataDomainException({
-            message: "A new goal cannot be created with this email",
+            message: "A new daily quest cannot be created with this email",
           });
         }
 
         throw new UnknownDomainException({
-          message: "There is no quest completion cannot with the given data",
+          message:
+            "There is no daily quest completion cannot with the given data",
           context: { e },
         });
       }
@@ -290,10 +290,12 @@ export default class DailyQuestService {
     }
   };
 
-  getDailyQuestIdsAddedWithSuggestion = async (userId: string) => {
-    return (await this.getDailyQuestsAddedWithSuggestion(userId)).map(
-      (row) => row.suggestion_id!
-    );
+  getDailyQuestIdsAddedWithSuggestion = async (
+    userId: string
+  ): Promise<string[]> => {
+    return (await this.getDailyQuestsAddedWithSuggestion(userId))
+      .map((quest) => quest.suggestion_id)
+      .filter((suggestionId): suggestionId is string => suggestionId != null);
   };
 
   private findQuestCompletion = async (

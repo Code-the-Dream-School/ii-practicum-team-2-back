@@ -8,8 +8,6 @@ declare module "express-serve-static-core" {
     user?: {
       id: string;
     };
-    queryParams?: QueryParams;
-    routeParams?: RouteParams;
   }
 }
 
@@ -22,6 +20,22 @@ export interface AuthenticatedRequest<
   user: {
     id: string;
   };
-  queryParams?: QueryParams;
-  routeParams?: RouteParams;
+}
+
+export interface RequestWithQueryParams<
+  P = Record<string, string>, // params
+  ResBody = Record<string, string>,
+  ReqBody = Record<string, string>,
+  ReqQuery = Record<string, string>,
+> extends Request<P, ResBody, ReqBody, ReqQuery> {
+  queryParams: QueryParams;
+}
+
+export interface RequestWithRouteParams<
+  P = Record<string, string>, // params
+  ResBody = Record<string, string>,
+  ReqBody = Record<string, string>,
+  ReqQuery = Record<string, string>,
+> extends Request<P, ResBody, ReqBody, ReqQuery> {
+  routeParams: RouteParams;
 }

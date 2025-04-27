@@ -50,7 +50,7 @@ export const toGoalTypeResponse = (model: GoalTypeModel): GoalTypeResponse => ({
   description: model.description,
 });
 
-export const toGoalTypeResponses = (
+export const toGoalTypeResponseList = (
   list: GoalTypeModel[]
 ): GoalTypeResponse[] => list.map(toGoalTypeResponse);
 
@@ -68,7 +68,7 @@ export function toGoalTypeFieldResponse(
   };
 }
 
-export function toGoalTypeFieldResponses(
+export function toGoalTypeFieldResponseList(
   fields: GoalTypeFieldModel[]
 ): GoalTypeFieldResponse[] {
   return fields.map(toGoalTypeFieldResponse);

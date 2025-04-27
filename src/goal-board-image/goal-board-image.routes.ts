@@ -1,8 +1,14 @@
-import { RequestHandler, Router } from "express";
+import { Router } from "express";
 import GoalBoardImageController from "./goal-board-image.controller";
 import { queryParamsParser } from "@/middleware/queryParams";
 import { auth } from "@/middleware/authentication";
 import { routeParamsParser } from "@/middleware/routeParams";
+import { asyncController } from "@/utils/controller";
+import {
+  AuthenticatedRequest,
+  RequestWithQueryParams,
+  RequestWithRouteParams,
+} from "@/types/express";
 
 const goalBoardImageRouter = Router();
 const goalBoardImageController = new GoalBoardImageController();
@@ -11,18 +17,22 @@ goalBoardImageRouter.get(
   "/",
   auth,
   queryParamsParser,
-  goalBoardImageController.getAll as RequestHandler
+  asyncController<AuthenticatedRequest & RequestWithQueryParams>(
+    goalBoardImageController.getAll
+  )
 );
 goalBoardImageRouter.post(
   "/upload",
   auth,
-  goalBoardImageController.upload as RequestHandler
+  asyncController<AuthenticatedRequest>(goalBoardImageController.upload)
 );
 goalBoardImageRouter.delete(
   "/:id",
   auth,
   routeParamsParser,
-  goalBoardImageController.remove as RequestHandler
+  asyncController<AuthenticatedRequest & RequestWithRouteParams>(
+    goalBoardImageController.remove
+  )
 );
 
 export default goalBoardImageRouter;

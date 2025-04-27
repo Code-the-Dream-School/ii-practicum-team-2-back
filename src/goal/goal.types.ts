@@ -38,6 +38,6 @@ export function toGoalResponse(goal: GoalModel): GoalResponse {
   };
 }
 
-export function toGoalResponses(goals: GoalModel[]): GoalResponse[] {
+export function toGoalResponseList(goals: GoalModel[]): GoalResponse[] {
   return goals.map(toGoalResponse);
 }

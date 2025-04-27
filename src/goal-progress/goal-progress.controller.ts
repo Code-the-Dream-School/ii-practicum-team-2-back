@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import GoalProgressService from "@/goal-progress/goal-progress.service";
 import {
   toGoalProgressResponse,
-  toGoalProgressResponses,
+  toGoalProgressResponseList,
 } from "@/goal-progress/goal-progress.types";
 import { CreateGoalProgressForm } from "@/goal-progress/goal-progress.forms";
 import { NotFoundError, UnprocessableEntityError } from "@/errors/http";
@@ -12,24 +12,34 @@ import {
   ValidationDomainException,
 } from "@/errors/domain";
 import { FlattenedFieldErrors } from "@/types/zod";
-import { AuthenticatedRequest } from "@/types/express";
+import {
+  AuthenticatedRequest,
+  RequestWithQueryParams,
+  RequestWithRouteParams,
+} from "@/types/express";
 
 export default class GoalProgressController {
   private goalProgressService: GoalProgressService = new GoalProgressService();
 
-  getAll = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getAll = async (
+    req: AuthenticatedRequest & RequestWithQueryParams & RequestWithRouteParams,
+    res: Response
+  ): Promise<void> => {
     const progress = await this.goalProgressService.findAll(
       req.user.id,
-      req.routeParams!.id,
-      req.queryParams!
+      req.routeParams.id,
+      req.queryParams
     );
 
     res
       .status(StatusCodes.OK)
-      .json({ data: toGoalProgressResponses(progress) });
+      .json({ data: toGoalProgressResponseList(progress) });
   };
 
-  create = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  create = async (
+    req: AuthenticatedRequest & RequestWithRouteParams,
+    res: Response
+  ): Promise<void> => {
     const createGoalProgressForm = CreateGoalProgressForm.safeParse(req.body);
     if (!createGoalProgressForm.success) {
       throw new UnprocessableEntityError({
@@ -40,7 +50,7 @@ export default class GoalProgressController {
     try {
       const progress = await this.goalProgressService.create(
         req.user.id,
-        req.routeParams!.id,
+        req.routeParams.id,
         createGoalProgressForm.data
       );
 

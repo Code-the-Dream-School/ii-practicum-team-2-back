@@ -9,9 +9,13 @@ import { NotFoundError, UnprocessableEntityError } from "@/errors/http";
 import { FlattenedFieldErrors } from "@/types/zod";
 import {
   toDailyQuestSuggestionResponse,
-  toDailyQuestSuggestionResponses,
+  toDailyQuestSuggestionResponseList,
 } from "@/daily-quest/suggestion/suggestion.types";
-import { AuthenticatedRequest } from "@/types/express";
+import {
+  AuthenticatedRequest,
+  RequestWithQueryParams,
+  RequestWithRouteParams,
+} from "@/types/express";
 import {
   CreateDailyQuestSuggestionForm,
   UpdateDailyQuestSuggestionForm,
@@ -20,15 +24,18 @@ import {
 export default class DailyQuestSuggestionController {
   private dailyQuestSuggestionService = new DailyQuestSuggestionService();
 
-  getAll = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getAll = async (
+    req: AuthenticatedRequest & RequestWithQueryParams,
+    res: Response
+  ): Promise<void> => {
     const suggestions = await this.dailyQuestSuggestionService.findAll(
       req.user.id,
-      req.queryParams!
+      req.queryParams
     );
 
     res
       .status(StatusCodes.OK)
-      .json({ data: toDailyQuestSuggestionResponses(suggestions) });
+      .json({ data: toDailyQuestSuggestionResponseList(suggestions) });
   };
 
   getById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -79,7 +86,10 @@ export default class DailyQuestSuggestionController {
     }
   };
 
-  update = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  update = async (
+    req: AuthenticatedRequest & RequestWithRouteParams,
+    res: Response
+  ): Promise<void> => {
     const result = UpdateDailyQuestSuggestionForm.safeParse(req.body);
     if (!result.success) {
       throw new UnprocessableEntityError({
@@ -89,7 +99,7 @@ export default class DailyQuestSuggestionController {
 
     try {
       const suggestion = await this.dailyQuestSuggestionService.update(
-        req.routeParams!.id,
+        req.routeParams.id,
         result.data
       );
 

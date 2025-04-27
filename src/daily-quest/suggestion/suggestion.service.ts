@@ -104,7 +104,8 @@ export default class DailyQuestSuggestionService {
           logPrismaKnownError(e);
 
           throw new InconsistentColumnDataDomainException({
-            message: "A new goal cannot be created with this email",
+            message:
+              "A new daily quest suggestion cannot be created with this email",
           });
         }
 
@@ -148,7 +149,8 @@ export default class DailyQuestSuggestionService {
           logPrismaKnownError(e);
 
           throw new InconsistentColumnDataDomainException({
-            message: "A new goal cannot be created with this email",
+            message:
+              "A new daily quest suggestion cannot be created with this email",
           });
         }
 
