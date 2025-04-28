@@ -13,7 +13,7 @@ export const validateDailyQuestSuggestionForUpdate = async (
   form: UpdateDailyQuestSuggestionFormType
 ): Promise<void> => {
   await validateDailyQuestSuggestionExists(id);
-  await validateDailyQuestSuggestionWithTitleIconDoesntExists(form);
+  await validateSuggestionHasUniqueTitleAndIcon(form);
 };
 
 export const validateDailyQuestSuggestionExists = async (
@@ -30,7 +30,7 @@ export const validateDailyQuestSuggestionExists = async (
   }
 };
 
-export const validateDailyQuestSuggestionWithTitleIconDoesntExists = async (
+export const validateSuggestionHasUniqueTitleAndIcon = async (
   form: CreateDailyQuestSuggestionFormType | UpdateDailyQuestSuggestionFormType
 ): Promise<void> => {
   const existing = await prisma.dailyQuest.findFirst({

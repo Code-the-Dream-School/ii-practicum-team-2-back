@@ -10,6 +10,21 @@ const weekdaysOnly: Frequency[] = [
   Frequency.Saturdays,
   Frequency.Sundays,
 ];
+const ERROR_INVALID_FREQUENCY =
+  "Frequency must be either 'Daily' or at least one weekday, but not both.";
+
+function isFrequencyValid(frequency: Frequency[]) {
+  if (frequency.length === 0) {
+    return false;
+  }
+
+  const hasDaily = frequency.includes(Frequency.Daily);
+  const hasWeekdays = frequency.some((frequency) =>
+    weekdaysOnly.includes(frequency)
+  );
+
+  return !(hasDaily && hasWeekdays);
+}
 
 export const CreateDailyQuestForm = z
   .object({
@@ -21,24 +36,10 @@ export const CreateDailyQuestForm = z
       .array(z.nativeEnum(Frequency))
       .min(1, "Select at least one frequency"),
   })
-  .refine(
-    (data) => {
-      const frequency = data.frequency ?? [];
-      const hasDaily = frequency.includes(Frequency.Daily);
-      const hasWeekdays = frequency.some((frequency) =>
-        weekdaysOnly.includes(frequency)
-      );
-
-      if (hasDaily && hasWeekdays) return false;
-
-      return !(!hasDaily && !hasWeekdays);
-    },
-    {
-      message:
-        "Frequency must be either 'Daily' or at least one weekday, but not both.",
-      path: ["frequency"],
-    }
-  );
+  .refine((data) => isFrequencyValid(data.frequency), {
+    message: ERROR_INVALID_FREQUENCY,
+    path: ["frequency"],
+  });
 export type CreateDailyQuestFormType = z.infer<typeof CreateDailyQuestForm>;
 
 export const UpdateDailyQuestForm = z
@@ -49,22 +50,8 @@ export const UpdateDailyQuestForm = z
       .array(z.nativeEnum(Frequency))
       .min(1, "Select at least one frequency"),
   })
-  .refine(
-    (data) => {
-      const frequency = data.frequency ?? [];
-      const hasDaily = frequency.includes(Frequency.Daily);
-      const hasWeekdays = frequency.some((frequency) =>
-        weekdaysOnly.includes(frequency)
-      );
-
-      if (hasDaily && hasWeekdays) return false;
-
-      return !(!hasDaily && !hasWeekdays);
-    },
-    {
-      message:
-        "Frequency must be either 'Daily' or at least one weekday, but not both.",
-      path: ["frequency"],
-    }
-  );
+  .refine((data) => isFrequencyValid(data.frequency), {
+    message: ERROR_INVALID_FREQUENCY,
+    path: ["frequency"],
+  });
 export type UpdateDailyQuestFormType = z.infer<typeof UpdateDailyQuestForm>;

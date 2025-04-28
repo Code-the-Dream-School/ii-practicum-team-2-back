@@ -20,9 +20,9 @@ import {
 import prismaErrorCodes from "@/types/prismaErrorCodes";
 import { logPrismaKnownError } from "@/utils/logger";
 import {
+  validateCreateDailyQuest,
   validateDailyQuestExists,
-  validateDailyQuestForCreate,
-  validateDailyQuestForUpdate,
+  validateUpdateDailyQuest,
 } from "@/daily-quest/daily-quest.validators";
 import QueryParams from "@/types/queryParams";
 import { Frequency } from "@/types/enums";
@@ -78,7 +78,7 @@ export default class DailyQuestService {
     form: CreateDailyQuestFormType
   ): Promise<DailyQuestModel> => {
     try {
-      await validateDailyQuestForCreate(userId, form);
+      await validateCreateDailyQuest(userId, form);
 
       const dailyQuest = await prisma.dailyQuest.create({
         data: {
@@ -132,7 +132,7 @@ export default class DailyQuestService {
     form: UpdateDailyQuestFormType
   ): Promise<DailyQuestModel> => {
     try {
-      await validateDailyQuestForUpdate(id, userId, form);
+      await validateUpdateDailyQuest(id, userId, form);
 
       const dailyQuest = await prisma.dailyQuest.update({
         where: { id },

@@ -8,22 +8,22 @@ import {
 } from "@/daily-quest/daily-quest.forms";
 import { prisma } from "@/db/prisma";
 
-export const validateDailyQuestForCreate = async (
+export const validateCreateDailyQuest = async (
   userId: string,
   form: CreateDailyQuestFormType | UpdateDailyQuestFormType
 ): Promise<void> => {
   await validateGoalExists(userId, form);
   await validateSuggestionExists(form);
-  await validateDailyQuestWithTitleDoesntExists(userId, form);
+  await validateDailyQuestHasUniqueTitle(userId, form);
 };
 
-export const validateDailyQuestForUpdate = async (
+export const validateUpdateDailyQuest = async (
   id: string,
   userId: string,
   form: UpdateDailyQuestFormType
 ): Promise<void> => {
   await validateDailyQuestExists(id, userId);
-  await validateDailyQuestWithTitleDoesntExists(userId, form);
+  await validateDailyQuestHasUniqueTitle(userId, form);
 };
 
 export const validateGoalExists = async (
@@ -74,7 +74,7 @@ export const validateDailyQuestExists = async (
   }
 };
 
-export const validateDailyQuestWithTitleDoesntExists = async (
+export const validateDailyQuestHasUniqueTitle = async (
   userId: string,
   form: CreateDailyQuestFormType | UpdateDailyQuestFormType
 ): Promise<void> => {

@@ -19,7 +19,7 @@ import {
 import {
   validateDailyQuestSuggestionExists,
   validateDailyQuestSuggestionForUpdate,
-  validateDailyQuestSuggestionWithTitleIconDoesntExists,
+  validateSuggestionHasUniqueTitleAndIcon,
 } from "@/daily-quest/suggestion/suggestion.validators";
 import DailyQuestService from "@/daily-quest/daily-quest.service";
 import InconsistentColumnDataDomainException from "../../errors/domain/inconsistentColumnDataDomain";
@@ -80,7 +80,7 @@ export default class DailyQuestSuggestionService {
     form: CreateDailyQuestSuggestionFormType
   ): Promise<DailyQuestSuggestionModel> => {
     try {
-      await validateDailyQuestSuggestionWithTitleIconDoesntExists(form);
+      await validateSuggestionHasUniqueTitleAndIcon(form);
 
       const dailyQuestSuggestion = await prisma.dailyQuestSuggestion.create({
         data: {
