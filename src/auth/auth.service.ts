@@ -7,10 +7,17 @@ import {
   RegistrationForm,
   registrationFormSchema,
 } from "./auth.forms";
-import { validateExistingUser, validateUserPassword } from "./auth.validators";
+import {
+  validateExistingUser,
+  validateGooglePayload,
+  validateUserPassword,
+} from "./auth.validators";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/db/prisma";
 import { LoginResponse, RegisterResponse } from "./auth.types";
+import { OAuth2Client } from "google-auth-library";
+const oAuthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const GOOGLE_PLACEHOLDER = "google-auth";
 
 export class AuthService {
   async register(
@@ -67,6 +74,15 @@ export class AuthService {
     }
 
     const { email, password } = data;
+
+    if (password === GOOGLE_PLACEHOLDER) {
+      throw new UnprocessableEntityError({
+        message: "This user must sign in with Google",
+        errors: {
+          email: ["This user must sign in with Google"],
+        },
+      });
+    }
 
     const user = await userService.findUserByEmail(email);
 
@@ -134,4 +150,57 @@ export class AuthService {
 
     return { access_token, refresh_token };
   }
+
+  async  googleLogin(id_token: string) {
+    const ticket = await oAuthClient.verifyIdToken({
+      idToken: id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+  
+    const payload = ticket.getPayload();
+    validateGooglePayload(payload);
+  
+    const { email: userEmail, sub: googleId, name: userName } = payload!;
+  
+    let user = await userService.findUserByAuthProvider("google", googleId);
+  
+    if (!user) {
+      user = await prisma.user.findUnique({ where: { email: userEmail! } });
+  
+      if (!user) {
+        user = await userService.createUser(userName!, userEmail!, GOOGLE_PLACEHOLDER) || null;
+
+        if(!user) {
+          throw new UnprocessableEntityError({
+            message: "Could not create user",
+            errors: {
+              email: ["Could not create user"],
+            },
+          });
+        }
+      }
+  
+      await userService.createAuthProvider(
+        "google",
+        googleId,
+        user.id,
+      );
+    }
+  
+    const { accessToken, refreshToken } = jwtTokenService.generateTokenPair({
+      userId: user.id,
+    });
+  
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        created_at: user.created_at,
+      },
+    };
+  }
+  
 }

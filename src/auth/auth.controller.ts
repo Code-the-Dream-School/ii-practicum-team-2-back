@@ -17,7 +17,8 @@ export default class AuthController {
   }
 
   async googleLogin(req: Request, res: Response): Promise<void> {
-    res.status(StatusCodes.OK).json({ message: "It works!" });
+    const result = await authService.googleLogin(req.body.id_token);
+    res.status(StatusCodes.OK).json(result);
   }
 
   async logout(req: AuthenticatedRequest, res: Response) {
