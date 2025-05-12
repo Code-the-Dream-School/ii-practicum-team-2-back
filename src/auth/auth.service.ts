@@ -1,4 +1,3 @@
-import { userService } from "@/user/user.service";
 import { jwtTokenService } from "@/services/JwtTokenService";
 import { UnauthenticatedError, UnprocessableEntityError } from "@/errors/http";
 import {
@@ -11,8 +10,11 @@ import { validateExistingUser, validateUserPassword } from "./auth.validators";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/db/prisma";
 import { LoginResponse, RegisterResponse } from "./auth.types";
+import UserService from "@/user/user.service";
 
 export class AuthService {
+  private userService: UserService = new UserService();
+
   async register(
     data: RegistrationForm
   ): Promise<RegisterResponse | undefined> {
@@ -29,7 +31,11 @@ export class AuthService {
     await validateExistingUser(email);
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await userService.createUser(name, email, hashedPassword);
+    const newUser = await this.userService.createUser(
+      name,
+      email,
+      hashedPassword
+    );
 
     if (newUser) {
       const tokenPair = jwtTokenService.generateTokenPair({
@@ -68,7 +74,7 @@ export class AuthService {
 
     const { email, password } = data;
 
-    const user = await userService.findUserByEmail(email);
+    const user = await this.userService.findUserByEmail(email);
 
     if (!user) {
       throw new UnprocessableEntityError({

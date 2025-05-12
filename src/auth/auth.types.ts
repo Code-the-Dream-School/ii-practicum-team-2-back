@@ -5,7 +5,6 @@ type User = {
   created_at: Date;
 };
 
-
 export type RegisterResponse = {
   access_token: string;
   refresh_token: string;
