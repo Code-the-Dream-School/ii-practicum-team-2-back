@@ -38,8 +38,88 @@ export default class UserService {
   };
 
   findUserByEmail = async (email: string) => {
-    return prisma.user.findUnique({ where: { email } });
+    try {
+      return prisma.user.findUnique({ where: { email } });
+    } catch (e: unknown) {
+       if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === prismaErrorCodes.NOT_FOUND_CODE) {
+          logPrismaKnownError(e);
+
+          throw new NotFoundDomainException({
+            message: "There is no user with the given data",
+          });
+        }
+
+        throw new UnknownDomainException({
+          message: "There is no user with the given data",
+          context: { e },
+        });
+      }
+
+      throw e;
+    }
+   
   };
+
+  async createAuthProvider(
+    provider: string,
+    providerUserId: string,
+    userId: string
+  ) {
+    try {
+      return await prisma.userAuthProvider.create({
+        data: {
+          provider,
+          provider_user_id: providerUserId,
+          user_id: userId,
+        },
+      });
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === prismaErrorCodes.UNIQUE_CONSTRAINT_FAILED_CODE) {
+          logPrismaKnownError(e);
+
+          throw new UniqueConstraintDomainException({
+            message: "A new user cannot be created with this email",
+          });
+        }
+
+        if (e.code === prismaErrorCodes.FOREIGN_KEY_CONSTRAINT_FAILED_CODE) {
+          logPrismaKnownError(e);
+
+          throw new ForeignKeyConstraintDomainException({
+            message: "A new user cannot be created with this email",
+          });
+        }
+
+        throw new UnknownDomainException({
+          message: "Could not create user",
+          context: { e },
+        });
+      }
+    }
+  }
+
+  async findUserByAuthProvider(
+    provider: string,
+    providerUserId: string
+  ): Promise<UserModel | null> {
+    const linkedAuth = await prisma.userAuthProvider.findFirst({
+      where: {
+        provider,
+        provider_user_id: providerUserId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (linkedAuth) {
+      return this.findById(linkedAuth.user_id);
+    }
+
+    return null;
+  }
 
   createUser = async (name: string, email: string, passwordHash: string) => {
     try {
