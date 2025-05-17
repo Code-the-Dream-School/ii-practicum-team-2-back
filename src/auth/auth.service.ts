@@ -15,9 +15,11 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/db/prisma";
 import { LoginResponse, RegisterResponse } from "./auth.types";
 import { OAuth2Client } from "google-auth-library";
+import UserService from "@/user/user.service";
+
 const oAuthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const GOOGLE_PLACEHOLDER = "google-auth";
-import UserService from "@/user/user.service";
+const GOOGLE_AUTH_PROVIDER = "google";
 
 export class AuthService {
   private userService: UserService = new UserService();
@@ -175,7 +177,7 @@ export class AuthService {
     const { email: userEmail, sub: googleId, name: userName } = payload!;
 
     let user = await this.userService.findUserByAuthProvider(
-      "google",
+      GOOGLE_AUTH_PROVIDER,
       googleId
     );
 
@@ -200,7 +202,7 @@ export class AuthService {
         }
       }
 
-      await this.userService.createAuthProvider("google", googleId, user.id);
+      await this.userService.createAuthProvider(GOOGLE_AUTH_PROVIDER, googleId, user.id);
     }
 
     const { accessToken, refreshToken } = jwtTokenService.generateTokenPair({

@@ -8,16 +8,19 @@ const authService = new AuthService();
 export default class AuthController {
   async register(req: Request, res: Response) {
     const result = await authService.register(req.body);
+    
     res.status(StatusCodes.CREATED).json(result);
   }
 
   async login(req: Request, res: Response) {
     const result = await authService.login(req.body);
+
     res.status(StatusCodes.OK).json(result);
   }
 
   async googleLogin(req: Request, res: Response): Promise<void> {
     const result = await authService.googleLogin(req.body.id_token);
+
     res.status(StatusCodes.OK).json(result);
   }
 
@@ -30,6 +33,7 @@ export default class AuthController {
 
   async refreshToken(req: Request, res: Response) {
     const result = await authService.refreshToken(req.body.refresh_token);
+    
     res.status(StatusCodes.OK).json(result);
   }
 
