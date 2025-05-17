@@ -163,26 +163,34 @@ export class AuthService {
     return { access_token, refresh_token };
   }
 
-  async  googleLogin(id_token: string) {
+  async googleLogin(id_token: string) {
     const ticket = await oAuthClient.verifyIdToken({
       idToken: id_token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-  
+
     const payload = ticket.getPayload();
     validateGooglePayload(payload);
-  
+
     const { email: userEmail, sub: googleId, name: userName } = payload!;
-  
-    let user = await this.userService.findUserByAuthProvider("google", googleId);
-  
+
+    let user = await this.userService.findUserByAuthProvider(
+      "google",
+      googleId
+    );
+
     if (!user) {
       user = await prisma.user.findUnique({ where: { email: userEmail! } });
-  
-      if (!user) {
-        user = await this.userService.createUser(userName!, userEmail!, GOOGLE_PLACEHOLDER) || null;
 
-        if(!user) {
+      if (!user) {
+        user =
+          (await this.userService.createUser(
+            userName!,
+            userEmail!,
+            GOOGLE_PLACEHOLDER
+          )) || null;
+
+        if (!user) {
           throw new UnprocessableEntityError({
             message: "Could not create user",
             errors: {
@@ -191,18 +199,22 @@ export class AuthService {
           });
         }
       }
-  
-      await this.userService.createAuthProvider(
-        "google",
-        googleId,
-        user.id,
-      );
+
+      await this.userService.createAuthProvider("google", googleId, user.id);
     }
-  
+
     const { accessToken, refreshToken } = jwtTokenService.generateTokenPair({
       userId: user.id,
     });
-  
+
+    await prisma.refreshToken.create({
+      data: {
+        user_id: user.id,
+        token: refreshToken,
+        expires_at: jwtTokenService.getRefreshTokenExpirationDate(),
+      },
+    });
+
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -214,5 +226,19 @@ export class AuthService {
       },
     };
   }
-  
+  async logout(refreshToken: string): Promise<void> {
+    if (!refreshToken) {
+      throw new UnauthenticatedError({ message: "Missing refresh or access token" });
+    }
+
+    try {
+      await prisma.refreshToken.update({
+        where: { token: refreshToken },
+        data: { revoked: true },
+      });
+      
+    } catch {
+      throw new UnauthenticatedError({ message: "Invalid refresh token" });
+    }
+  }
 }

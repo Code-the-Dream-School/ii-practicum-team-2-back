@@ -38,7 +38,27 @@ export default class UserService {
   };
 
   findUserByEmail = async (email: string) => {
-    return prisma.user.findUnique({ where: { email } });
+    try {
+      return prisma.user.findUnique({ where: { email } });
+    } catch (e: unknown) {
+       if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === prismaErrorCodes.NOT_FOUND_CODE) {
+          logPrismaKnownError(e);
+
+          throw new NotFoundDomainException({
+            message: "There is no user with the given data",
+          });
+        }
+
+        throw new UnknownDomainException({
+          message: "There is no user with the given data",
+          context: { e },
+        });
+      }
+
+      throw e;
+    }
+   
   };
 
   async createAuthProvider(
@@ -84,7 +104,7 @@ export default class UserService {
     provider: string,
     providerUserId: string
   ): Promise<UserModel | null> {
-    const linkedAuth = await prisma.userAuthProvider.findUnique({
+    const linkedAuth = await prisma.userAuthProvider.findFirst({
       where: {
         provider,
         provider_user_id: providerUserId,
