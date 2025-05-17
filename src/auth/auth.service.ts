@@ -1,4 +1,3 @@
-import { userService } from "@/user/user.service";
 import { jwtTokenService } from "@/services/JwtTokenService";
 import { UnauthenticatedError, UnprocessableEntityError } from "@/errors/http";
 import {
@@ -18,8 +17,11 @@ import { LoginResponse, RegisterResponse } from "./auth.types";
 import { OAuth2Client } from "google-auth-library";
 const oAuthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const GOOGLE_PLACEHOLDER = "google-auth";
+import UserService from "@/user/user.service";
 
 export class AuthService {
+  private userService: UserService = new UserService();
+
   async register(
     data: RegistrationForm
   ): Promise<RegisterResponse | undefined> {
@@ -36,7 +38,11 @@ export class AuthService {
     await validateExistingUser(email);
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await userService.createUser(name, email, hashedPassword);
+    const newUser = await this.userService.createUser(
+      name,
+      email,
+      hashedPassword
+    );
 
     if (newUser) {
       const tokenPair = jwtTokenService.generateTokenPair({
@@ -84,7 +90,7 @@ export class AuthService {
       });
     }
 
-    const user = await userService.findUserByEmail(email);
+    const user = await this.userService.findUserByEmail(email);
 
     if (!user) {
       throw new UnprocessableEntityError({
@@ -103,6 +109,12 @@ export class AuthService {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        created_at: user.created_at,
+      },
     };
   }
 
@@ -162,13 +174,13 @@ export class AuthService {
   
     const { email: userEmail, sub: googleId, name: userName } = payload!;
   
-    let user = await userService.findUserByAuthProvider("google", googleId);
+    let user = await this.userService.findUserByAuthProvider("google", googleId);
   
     if (!user) {
       user = await prisma.user.findUnique({ where: { email: userEmail! } });
   
       if (!user) {
-        user = await userService.createUser(userName!, userEmail!, GOOGLE_PLACEHOLDER) || null;
+        user = await this.userService.createUser(userName!, userEmail!, GOOGLE_PLACEHOLDER) || null;
 
         if(!user) {
           throw new UnprocessableEntityError({
@@ -180,7 +192,7 @@ export class AuthService {
         }
       }
   
-      await userService.createAuthProvider(
+      await this.userService.createAuthProvider(
         "google",
         googleId,
         user.id,

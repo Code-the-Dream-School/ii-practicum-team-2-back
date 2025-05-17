@@ -1,7 +1,9 @@
 import { UnauthenticatedError, UnprocessableEntityError } from "@/errors/http";
-import { userService } from "@/user/user.service";
 import bcrypt from "bcryptjs";
+import UserService from "@/user/user.service";
 import { TokenPayload } from "google-auth-library";
+
+const userService: UserService = new UserService();
 
 export const validateExistingUser = async (email: string) => {
   const existingUser = await userService.findUserByEmail(email);

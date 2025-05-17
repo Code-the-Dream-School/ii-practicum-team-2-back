@@ -144,7 +144,7 @@ export default class GoalService {
           logPrismaKnownError(e);
 
           throw new InconsistentColumnDataDomainException({
-            message: "A new goal cannot be created with this email",
+            message: "A new goal cannot be updated with this email",
           });
         }
 

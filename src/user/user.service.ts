@@ -4,29 +4,43 @@ import prismaErrorCodes from "@/types/prismaErrorCodes";
 import { logPrismaKnownError } from "@/utils/logger";
 import {
   ForeignKeyConstraintDomainException,
+  NotFoundDomainException,
   UniqueConstraintDomainException,
   UnknownDomainException,
 } from "@/errors/domain";
 import { User } from "@prisma/client";
+import { UserModel } from "@/user/user.domain.types";
+import InconsistentColumnDataDomainException from "../errors/domain/inconsistentColumnDataDomain";
+import { UpdateUserFormType } from "@/user/user.forms";
+import { validateUserExists } from "@/user/user.validators";
 
-class UserService {
-  async findUserByEmail(email: string) {
+export default class UserService {
+  findById = async (id: string): Promise<UserModel> => {
+    try {
+      return await prisma.user.findFirstOrThrow({ where: { id } });
+    } catch (e: unknown) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === prismaErrorCodes.NOT_FOUND_CODE) {
+          logPrismaKnownError(e);
+
+          throw new NotFoundDomainException({
+            message: "There is no user with the given data",
+          });
+        }
+
+        throw new UnknownDomainException({
+          message: "There is no user with the given data",
+          context: { e },
+        });
+      }
+
+      throw e;
+    }
+  };
+
+  findUserByEmail = async (email: string) => {
     return prisma.user.findUnique({ where: { email } });
-  }
-
-  async findUserByAuthProvider(provider: string, providerUserId: string): Promise<User | null> {
-    const linkedAuth = await prisma.userAuthProvider.findUnique({
-      where: {
-        provider,
-        provider_user_id: providerUserId,
-      },
-      include: {
-        user: true,
-      },
-    });
-
-    return linkedAuth?.user ?? null;
-  }
+  };
 
   async createAuthProvider(
     provider: string,
@@ -67,8 +81,26 @@ class UserService {
     }
 
   }
+  
+  async findUserByAuthProvider(provider: string, providerUserId: string): Promise<UserModel | null> {
+    const linkedAuth = await prisma.userAuthProvider.findUnique({
+      where: {
+        provider,
+        provider_user_id: providerUserId,
+      },
+      include: {
+        user: true,
+      },
+    });
 
-  async createUser(name: string, email: string, passwordHash: string) {
+    if(linkedAuth) {
+      return this.findById(linkedAuth.user_id);
+    }
+
+    return null;
+  }
+
+  createUser = async (name: string, email: string, passwordHash: string) => {
     try {
       return await prisma.user.create({
         data: { name, email, password: passwordHash },
@@ -97,7 +129,36 @@ class UserService {
         });
       }
     }
-  }
-}
+  };
 
-export const userService = new UserService();
+  update = async (id: string, form: UpdateUserFormType): Promise<UserModel> => {
+    try {
+      await validateUserExists(id);
+
+      return await prisma.user.update({
+        where: { id },
+        data: {
+          email: form.email,
+          name: form.name,
+        },
+      });
+    } catch (e: unknown) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === prismaErrorCodes.INCONSISTENT_COLUMN_DATA) {
+          logPrismaKnownError(e);
+
+          throw new InconsistentColumnDataDomainException({
+            message: "A new user cannot be updated with this email",
+          });
+        }
+
+        throw new UnknownDomainException({
+          message: "Failed to update user",
+          context: { e },
+        });
+      }
+
+      throw e;
+    }
+  };
+}
