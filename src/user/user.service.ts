@@ -8,7 +8,6 @@ import {
   UniqueConstraintDomainException,
   UnknownDomainException,
 } from "@/errors/domain";
-import { User } from "@prisma/client";
 import { UserModel } from "@/user/user.domain.types";
 import InconsistentColumnDataDomainException from "../errors/domain/inconsistentColumnDataDomain";
 import { UpdateUserFormType } from "@/user/user.forms";
@@ -79,10 +78,12 @@ export default class UserService {
         });
       }
     }
-
   }
-  
-  async findUserByAuthProvider(provider: string, providerUserId: string): Promise<UserModel | null> {
+
+  async findUserByAuthProvider(
+    provider: string,
+    providerUserId: string
+  ): Promise<UserModel | null> {
     const linkedAuth = await prisma.userAuthProvider.findUnique({
       where: {
         provider,
@@ -93,7 +94,7 @@ export default class UserService {
       },
     });
 
-    if(linkedAuth) {
+    if (linkedAuth) {
       return this.findById(linkedAuth.user_id);
     }
 
