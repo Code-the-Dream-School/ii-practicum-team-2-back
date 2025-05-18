@@ -6,11 +6,20 @@ import {
   RegistrationForm,
   registrationFormSchema,
 } from "./auth.forms";
-import { validateExistingUser, validateUserPassword } from "./auth.validators";
+import {
+  validateExistingUser,
+  validateGooglePayload,
+  validateUserPassword,
+} from "./auth.validators";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/db/prisma";
 import { LoginResponse, RegisterResponse } from "./auth.types";
+import { OAuth2Client } from "google-auth-library";
 import UserService from "@/user/user.service";
+
+const oAuthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const GOOGLE_PLACEHOLDER = "google-auth";
+const GOOGLE_AUTH_PROVIDER = "google";
 
 export class AuthService {
   private userService: UserService = new UserService();
@@ -73,6 +82,15 @@ export class AuthService {
     }
 
     const { email, password } = data;
+
+    if (password === GOOGLE_PLACEHOLDER) {
+      throw new UnprocessableEntityError({
+        message: "This user must sign in with Google",
+        errors: {
+          email: ["This user must sign in with Google"],
+        },
+      });
+    }
 
     const user = await this.userService.findUserByEmail(email);
 
@@ -145,5 +163,84 @@ export class AuthService {
     });
 
     return { access_token, refresh_token };
+  }
+
+  async googleLogin(id_token: string) {
+    const ticket = await oAuthClient.verifyIdToken({
+      idToken: id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    validateGooglePayload(payload);
+
+    const { email: userEmail, sub: googleId, name: userName } = payload!;
+
+    let user = await this.userService.findUserByAuthProvider(
+      GOOGLE_AUTH_PROVIDER,
+      googleId
+    );
+
+    if (!user) {
+      user = await prisma.user.findUnique({ where: { email: userEmail! } });
+
+      if (!user) {
+        user =
+          (await this.userService.createUser(
+            userName!,
+            userEmail!,
+            GOOGLE_PLACEHOLDER
+          )) || null;
+
+        if (!user) {
+          throw new UnprocessableEntityError({
+            message: "Could not create user",
+            errors: {
+              email: ["Could not create user"],
+            },
+          });
+        }
+      }
+
+      await this.userService.createAuthProvider(GOOGLE_AUTH_PROVIDER, googleId, user.id);
+    }
+
+    const { accessToken, refreshToken } = jwtTokenService.generateTokenPair({
+      userId: user.id,
+    });
+
+    await prisma.refreshToken.create({
+      data: {
+        user_id: user.id,
+        token: refreshToken,
+        expires_at: jwtTokenService.getRefreshTokenExpirationDate(),
+      },
+    });
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        created_at: user.created_at,
+      },
+    };
+  }
+  async logout(refreshToken: string): Promise<void> {
+    if (!refreshToken) {
+      throw new UnauthenticatedError({ message: "Missing refresh or access token" });
+    }
+
+    try {
+      await prisma.refreshToken.update({
+        where: { token: refreshToken },
+        data: { revoked: true },
+      });
+      
+    } catch {
+      throw new UnauthenticatedError({ message: "Invalid refresh token" });
+    }
   }
 }

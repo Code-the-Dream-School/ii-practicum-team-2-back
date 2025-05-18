@@ -1,6 +1,7 @@
-import { UnprocessableEntityError } from "@/errors/http";
+import { UnauthenticatedError, UnprocessableEntityError } from "@/errors/http";
 import bcrypt from "bcryptjs";
 import UserService from "@/user/user.service";
+import { TokenPayload } from "google-auth-library";
 
 const userService: UserService = new UserService();
 
@@ -32,3 +33,11 @@ export const validateUserPassword = async (
     });
   }
 };
+
+export const validateGooglePayload = (payload: TokenPayload | undefined) => {
+  if (!payload || !payload.email || !payload.sub || !payload.name) {
+    throw new UnauthenticatedError({
+      message: "Invalid Google token payload",
+    });
+  }
+}
